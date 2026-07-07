@@ -38,10 +38,14 @@ PROJECT_SOURCE_FILES  ?= \
     screen_title.c \
     screen_options.c \
     screen_gameplay.c \
-    screen_ending.c
+    screen_ending.c \
+    map.c \
+    external/cjson/cJSON.c \
+    unit.c \
+    input.c
 
 # raylib library variables
-RAYLIB_PATH           ?= C:\raylib\raylib
+RAYLIB_PATH           ?= ../../raylib
 RAYLIB_INCLUDE_PATH   ?= $(RAYLIB_PATH)/src
 RAYLIB_LIB_PATH       ?= $(RAYLIB_PATH)/src
 # Library type used for raylib: STATIC (.a) or SHARED (.so/.dll)
@@ -188,7 +192,7 @@ endif
 
 # Define include paths for required headers: INCLUDE_PATHS
 #------------------------------------------------------------------------------------------------
-INCLUDE_PATHS += -I. -Iexternal -I$(RAYLIB_INCLUDE_PATH)
+INCLUDE_PATHS += -I. -Iexternal -I$(RAYLIB_INCLUDE_PATH) -Iinclude
 
 # Define additional directories containing required header files
 ifeq ($(PLATFORM),PLATFORM_DRM)

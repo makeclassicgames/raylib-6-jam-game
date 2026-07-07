@@ -1,0 +1,18 @@
+[
+    {
+        "id": 0,
+        "max_hp": 20,
+        "speed": 3,
+        "damage": 10,
+        "attack_range": 2,
+        "armor": 1.0
+    },
+    {
+        "id": 1,
+        "max_hp": 50,
+        "damage": 20,
+        "speed": 5,
+        "attack_range": 3,
+        "armor": 1.5
+    }
+]

@@ -25,12 +25,20 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "map.h"
+#include "unit.h"
+#include "input.h"
+
+#define MAP_WIDTH 23
+#define MAP_HEIGHT 23
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
+static Map gameMap; // Declare a Map variable to hold the game map
+static Unit playerUnits[2]; // Declare a Unit variable to hold the player unit
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -42,18 +50,27 @@ void InitGameplayScreen(void)
     // TODO: Initialize GAMEPLAY screen variables here!
     framesCounter = 0;
     finishScreen = 0;
+    InitMap(&gameMap, MAP_WIDTH, MAP_HEIGHT);
+    InitUnit(&playerUnits[0], SOLDIER, 5, 5, 1); // Initialize a player unit at position (5, 5) with owner 1
+    InitUnit(&playerUnits[1], TANK, 10, 10, 1); // Initialize another player unit at position (10, 10) with owner 1
 }
 
 // Gameplay Screen Update logic
 void UpdateGameplayScreen(void)
 {
+    HandleInput(); // Handle input for the gameplay screen
     // TODO: Update GAMEPLAY screen variables here!
 
     // Press enter or tap to change to ENDING screen
-    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
+    if (IsKeyPressed(KEY_ENTER))
     {
         finishScreen = 1;
         PlaySound(fxCoin);
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        UpdateUnit(&playerUnits[i]);
     }
 }
 
@@ -62,9 +79,12 @@ void DrawGameplayScreen(void)
 {
     // TODO: Draw GAMEPLAY screen here!
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), PURPLE);
-    Vector2 pos = { 20, 10 };
-    DrawTextEx(font, "GAMEPLAY SCREEN", pos, font.baseSize*3.0f, 4, MAROON);
-    DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 130, 220, 20, MAROON);
+    DrawMap(&gameMap);
+    for (int i = 0; i < 2; i++)
+    {
+        DrawUnit(&playerUnits[i]);
+    }
+
 }
 
 // Gameplay Screen Unload logic

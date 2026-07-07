@@ -45,8 +45,8 @@ Sound fxCoin = { 0 };
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
-static const int screenWidth = 800;
-static const int screenHeight = 450;
+static const int screenWidth = 720;
+static const int screenHeight = 720;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -86,8 +86,8 @@ int main(void)
     PlayMusicStream(music);
 
     // Setup and init first screen
-    currentScreen = LOGO;
-    InitLogoScreen();
+    currentScreen = GAMEPLAY;;
+    InitGameplayScreen();
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
