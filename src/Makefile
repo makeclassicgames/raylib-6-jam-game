@@ -42,6 +42,7 @@ PROJECT_SOURCE_FILES  ?= \
     map.c \
     external/cjson/cJSON.c \
     unit.c \
+    ui.c \
     input.c
 
 # raylib library variables

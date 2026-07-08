@@ -2,13 +2,12 @@
 #include <stdlib.h>
 #include "unit.h"
 #include "input.h"
+#include "ui.h"
 #include "cjson/cJSON.h"
 
-#if defined(PLATFORM_WEB)
-    #define JSON_UNIT_PATH "units_properties.json"
-#else
-    #define JSON_UNIT_PATH "resources/units_properties.json"
-#endif
+
+#define JSON_UNIT_PATH "resources/units_properties.json"
+
 
 typedef struct{
     int hp;
@@ -21,6 +20,13 @@ typedef struct{
 UnitProperties* unitProperties;
 
 UnitProperties* LoadUnitProperties();
+
+void MoveUnit(void);
+void AttackUnit(void);
+void MergeUnits(void);
+void WaitUnit(void);
+
+ContextMenu unitContextMenu;
 
 void InitUnit(Unit* unit,UnitType unitType,int x,int y ,int owner){
     unitProperties = LoadUnitProperties();
@@ -46,9 +52,22 @@ void UpdateUnit(Unit * unit){
     if(GetLastInputAction() == SELECT){
         if(CheckCollisionPointRec(GetMousePosition(), unit->boundingBox)){
             unit->selected = true;
+            InitContextMenu(&unitContextMenu);
+            AddButtonToContextMenu(&unitContextMenu, "Move", MoveUnit);
+            AddButtonToContextMenu(&unitContextMenu, "Attack", AttackUnit);
+            AddButtonToContextMenu(&unitContextMenu, "Merge", MergeUnits);
+            AddButtonToContextMenu(&unitContextMenu, "Wait", WaitUnit);
+            ShowContextMenu(&unitContextMenu);
+
         }else{
-            unit->selected = false;
+            if(!unitContextMenu.active){
+                unit->selected = false;
+
+            }
         }
+    }
+    if(unit->selected){
+        UpdateContextMenu(&unitContextMenu,(Vector2){unit->boundingBox.x+ unit->boundingBox.width,unit->boundingBox.y},GetLastInputAction()==SELECT);
     }
 }
 
@@ -69,9 +88,27 @@ void DrawUnit(Unit* unit){
         break;
     }
     if(unit->selected){
-        DrawRectangleLines(unit->boundingBox.x, unit->boundingBox.y, unit->boundingBox.width, unit->boundingBox.height, YELLOW);
+       DrawRectangleLines(unit->boundingBox.x, unit->boundingBox.y, unit->boundingBox.width, unit->boundingBox.height, YELLOW);
+       DrawContextMenu(&unitContextMenu, (Vector2){unit->boundingBox.x + unit->boundingBox.width, unit->boundingBox.y});
     }
 }
+
+void MoveUnit(void){
+    TraceLog(LOG_INFO, "Move Unit");
+}
+
+void AttackUnit(void){
+    TraceLog(LOG_INFO, "Attack Unit");
+
+}
+void MergeUnits(void){
+    TraceLog(LOG_INFO, "Merge Units");
+}
+void WaitUnit(void){
+    TraceLog(LOG_INFO, "Wait Unit");
+}
+
+
 
 UnitProperties* LoadUnitProperties(){
   
@@ -100,3 +137,4 @@ printf("loadesd\n");
     cJSON_Delete(json);
     return properties;
 }
+
