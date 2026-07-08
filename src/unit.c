@@ -3,6 +3,7 @@
 #include "unit.h"
 #include "input.h"
 #include "cjson/cJSON.h"
+#include "sprites.h"
 
 #if defined(PLATFORM_WEB)
     #define JSON_UNIT_PATH "units_properties.json"
@@ -10,7 +11,6 @@
     #define JSON_UNIT_PATH "resources/units_properties.json"
 #endif
 
-extern Texture2D spritesTexture;
 
 typedef struct{
     int hp;
@@ -67,7 +67,7 @@ void DrawUnit(Unit* unit){
         //(Rectangle){ 30, 40, cat.width*1.5f, cat.height*1.5f }, (Vector2){ 0 }, 0.0f, WHITE);
         break;
     case TANK:
-        DrawTextureRec(spritesTexture, (Rectangle){ 16, 0, 16.0f, 16.0f }, drawPosition, WHITE);
+        drawSprite(1, drawPosition);
         break;
     default:
         break;
