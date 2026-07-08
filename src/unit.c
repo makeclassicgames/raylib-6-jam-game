@@ -4,6 +4,12 @@
 #include "input.h"
 #include "cjson/cJSON.h"
 
+#if defined(PLATFORM_WEB)
+    #define JSON_UNIT_PATH "units_properties.json"
+#else
+    #define JSON_UNIT_PATH "resources/units_properties.json"
+#endif
+
 typedef struct{
     int hp;
     float damage;
@@ -69,7 +75,7 @@ void DrawUnit(Unit* unit){
 
 UnitProperties* LoadUnitProperties(){
   
-    char * data = LoadFileText("unit_properties.json");
+    char * data = LoadFileText(JSON_UNIT_PATH);
 
     cJSON* json = cJSON_Parse(data);
     free(data);
@@ -79,16 +85,18 @@ UnitProperties* LoadUnitProperties(){
         return NULL;
     }
     int UnitNumber = cJSON_GetArraySize(json);
+
     UnitProperties* properties = (UnitProperties*)malloc(UnitNumber*sizeof(UnitProperties));
+
     for (int i = 0; i < UnitNumber; i++) {
+printf("loadesd\n");
         cJSON* unitJson = cJSON_GetArrayItem(json, i);
-        properties[i].hp = cJSON_GetObjectItem(unitJson, "hp")->valueint;
+        properties[i].hp = cJSON_GetObjectItem(unitJson, "max_hp")->valueint;
         properties[i].damage = cJSON_GetObjectItem(unitJson, "damage")->valuedouble;
         properties[i].speed = cJSON_GetObjectItem(unitJson, "speed")->valueint;
         properties[i].attack_range = cJSON_GetObjectItem(unitJson, "attack_range")->valueint;
         properties[i].armor = cJSON_GetObjectItem(unitJson, "armor")->valuedouble;
     }
-
     cJSON_Delete(json);
     return properties;
 }
