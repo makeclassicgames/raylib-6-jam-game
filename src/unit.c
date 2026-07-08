@@ -56,7 +56,7 @@ void UpdateUnit(Unit * unit){
 
 void DrawUnit(Unit* unit){
 
-    Vector2 drawPosition = {(unit->position.x-1) * 32 + 16, (unit->position.y-1) * 32 + 16};
+    Vector2 drawPosition = {(unit->position.x-1) * 32 + 8, (unit->position.y-1) * 32 + 8};
     switch (unit->type)
     {
     case SOLDIER:
