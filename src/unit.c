@@ -48,13 +48,15 @@ void UpdateUnit(Unit * unit){
 
 void DrawUnit(Unit* unit){
 
-    Vector2 drawPosition = {(unit->position.x-1) * 32 + 16, (unit->position.y-1) * 32 + 16};
+    Vector2 drawPosition ={0};
     switch (unit->type)
     {
     case SOLDIER:
+        drawPosition = (Vector2){(unit->position.x-1) * 32 + 16, (unit->position.y-1) * 32 + 16};
         DrawCircleV(drawPosition, 10, RED);
         break;
     case TANK:
+        drawPosition = (Vector2){(unit->position.x-1) * 32+8, (unit->position.y-1) * 32+8};
         DrawRectangleV(drawPosition, (Vector2){20, 20}, BLUE);
         break;
     default:
