@@ -33,6 +33,13 @@
     #define LOG(...)
 #endif
 
+// Texture resource
+#if defined(PLATFORM_WEB)
+    #define SPRITES_PNG "sprites.png"
+#else
+    #define SPRITES_PNG "resources/sprites.png"
+#endif
+
 //----------------------------------------------------------------------------------
 // Shared Variables Definition (global)
 // NOTE: Those variables are shared between modules through screens.h
@@ -83,7 +90,7 @@ int main(void)
     //music = LoadMusicStream("resources/ambient.ogg"); // TODO: Load music
     fxCoin = LoadSound("resources/coin.wav");
     // Load texture for sprites
-    spritesTexture = LoadTexture("resources/sprites.png");        // Texture loading
+    spritesTexture = LoadTexture(SPRITES_PNG);        // Texture loading
 
     SetMusicVolume(music, 1.0f);
     PlayMusicStream(music);
