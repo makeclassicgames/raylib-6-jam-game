@@ -362,7 +362,7 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	rm -fv *.o
     endif
     ifeq ($(PLATFORM_OS),OSX)
-	rm -f *.o external/*.o $(PROJECT_NAME)
+	rm -f *.o external/*.o $(PROJECT_NAME) external/*/*.o
     endif
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)
