@@ -60,11 +60,7 @@ void DrawUnit(Unit* unit){
     switch (unit->type)
     {
     case SOLDIER:
-        // void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color tint);
-        DrawTextureRec(spritesTexture, (Rectangle){ 0, 0, 16.0f, 16.0f }, drawPosition, WHITE); 
-        
-        //ImageDrawImagePro(&parrots, cat, (Rectangle){ 0, 0, (float)cat.width, (float)cat.height }, 
-        //(Rectangle){ 30, 40, cat.width*1.5f, cat.height*1.5f }, (Vector2){ 0 }, 0.0f, WHITE);
+        drawSprite(0, drawPosition);
         break;
     case TANK:
         drawSprite(1, drawPosition);
