@@ -5,7 +5,8 @@
 
 typedef enum{
     SOLDIER,
-    TANK
+    TANK,
+    PLANE
 } UnitType;
 
 typedef struct{

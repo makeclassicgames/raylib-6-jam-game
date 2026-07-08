@@ -38,7 +38,7 @@
 static int framesCounter = 0;
 static int finishScreen = 0;
 static Map gameMap; // Declare a Map variable to hold the game map
-static Unit playerUnits[2]; // Declare a Unit variable to hold the player unit
+static Unit playerUnits[3]; // Declare a Unit variable to hold the player unit
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
@@ -53,6 +53,7 @@ void InitGameplayScreen(void)
     InitMap(&gameMap, MAP_WIDTH, MAP_HEIGHT);
     InitUnit(&playerUnits[0], SOLDIER, 5, 5, 1); // Initialize a player unit at position (5, 5) with owner 1
     InitUnit(&playerUnits[1], TANK, 10, 10, 1); // Initialize another player unit at position (10, 10) with owner 1
+    InitUnit(&playerUnits[2], PLANE, 15, 15, 1);
 }
 
 // Gameplay Screen Update logic
@@ -80,7 +81,7 @@ void DrawGameplayScreen(void)
     // TODO: Draw GAMEPLAY screen here!
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), PURPLE);
     DrawMap(&gameMap);
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 3; i++)
     {
         DrawUnit(&playerUnits[i]);
     }

@@ -42,7 +42,8 @@ PROJECT_SOURCE_FILES  ?= \
     map.c \
     external/cjson/cJSON.c \
     unit.c \
-    input.c
+    input.c \
+    sprites.c
 
 # raylib library variables
 RAYLIB_PATH           ?= ../../raylib

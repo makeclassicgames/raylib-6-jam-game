@@ -3,12 +3,14 @@
 #include "unit.h"
 #include "input.h"
 #include "cjson/cJSON.h"
+#include "sprites.h"
 
 #if defined(PLATFORM_WEB)
     #define JSON_UNIT_PATH "units_properties.json"
 #else
     #define JSON_UNIT_PATH "resources/units_properties.json"
 #endif
+
 
 typedef struct{
     int hp;
@@ -54,14 +56,17 @@ void UpdateUnit(Unit * unit){
 
 void DrawUnit(Unit* unit){
 
-    Vector2 drawPosition = {(unit->position.x-1) * 32 + 16, (unit->position.y-1) * 32 + 16};
+    Vector2 drawPosition = {(unit->position.x-1) * 32 + 8, (unit->position.y-1) * 32 + 8};
     switch (unit->type)
     {
     case SOLDIER:
-        DrawCircleV(drawPosition, 10, RED);
+        drawSprite(0, drawPosition);
         break;
     case TANK:
-        DrawRectangleV(drawPosition, (Vector2){20, 20}, BLUE);
+        drawSprite(1, drawPosition);
+        break;
+    case PLANE:
+        drawSprite(2, drawPosition);
         break;
     default:
         break;
