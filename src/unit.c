@@ -10,6 +10,8 @@
     #define JSON_UNIT_PATH "resources/units_properties.json"
 #endif
 
+extern Texture2D spritesTexture;
+
 typedef struct{
     int hp;
     float damage;
@@ -58,10 +60,14 @@ void DrawUnit(Unit* unit){
     switch (unit->type)
     {
     case SOLDIER:
-        DrawCircleV(drawPosition, 10, RED);
+        // void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color tint);
+        DrawTextureRec(spritesTexture, (Rectangle){ 0, 0, 16.0f, 16.0f }, drawPosition, WHITE); 
+        
+        //ImageDrawImagePro(&parrots, cat, (Rectangle){ 0, 0, (float)cat.width, (float)cat.height }, 
+        //(Rectangle){ 30, 40, cat.width*1.5f, cat.height*1.5f }, (Vector2){ 0 }, 0.0f, WHITE);
         break;
     case TANK:
-        DrawRectangleV(drawPosition, (Vector2){20, 20}, BLUE);
+        DrawTextureRec(spritesTexture, (Rectangle){ 16, 0, 16.0f, 16.0f }, drawPosition, WHITE);
         break;
     default:
         break;
