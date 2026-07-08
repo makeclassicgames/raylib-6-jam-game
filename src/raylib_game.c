@@ -34,11 +34,9 @@
 #endif
 
 // Texture resource
-#if defined(PLATFORM_WEB)
-    #define SPRITES_PNG "sprites.png"
-#else
-    #define SPRITES_PNG "resources/sprites.png"
-#endif
+
+#define SPRITES_PNG "resources/sprites.png"
+
 
 //----------------------------------------------------------------------------------
 // Shared Variables Definition (global)
