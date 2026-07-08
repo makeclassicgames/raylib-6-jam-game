@@ -65,6 +65,9 @@ void DrawUnit(Unit* unit){
     case TANK:
         drawSprite(1, drawPosition);
         break;
+    case PLANE:
+        drawSprite(2, drawPosition);
+        break;
     default:
         break;
     }
