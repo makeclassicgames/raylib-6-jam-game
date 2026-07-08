@@ -4,6 +4,7 @@
 #include "input.h"
 #include "ui.h"
 #include "cjson/cJSON.h"
+#include "sprites.h"
 
 
 #define JSON_UNIT_PATH "resources/units_properties.json"
@@ -73,16 +74,17 @@ void UpdateUnit(Unit * unit){
 
 void DrawUnit(Unit* unit){
 
-    Vector2 drawPosition ={0};
+    Vector2 drawPosition = {(unit->position.x-1) * 32 + 8, (unit->position.y-1) * 32 + 8};
     switch (unit->type)
     {
     case SOLDIER:
-        drawPosition = (Vector2){(unit->position.x-1) * 32 + 16, (unit->position.y-1) * 32 + 16};
-        DrawCircleV(drawPosition, 10, RED);
+        drawSprite(0, drawPosition);
         break;
     case TANK:
-        drawPosition = (Vector2){(unit->position.x-1) * 32+8, (unit->position.y-1) * 32+8};
-        DrawRectangleV(drawPosition, (Vector2){20, 20}, BLUE);
+        drawSprite(1, drawPosition);
+        break;
+    case PLANE:
+        drawSprite(2, drawPosition);
         break;
     default:
         break;

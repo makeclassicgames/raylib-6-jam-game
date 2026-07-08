@@ -33,6 +33,13 @@
     #define LOG(...)
 #endif
 
+// Texture resource
+#if defined(PLATFORM_WEB)
+    #define SPRITES_PNG "sprites.png"
+#else
+    #define SPRITES_PNG "resources/sprites.png"
+#endif
+
 //----------------------------------------------------------------------------------
 // Shared Variables Definition (global)
 // NOTE: Those variables are shared between modules through screens.h
@@ -47,6 +54,7 @@ Sound fxCoin = { 0 };
 //----------------------------------------------------------------------------------
 static const int screenWidth = 720;
 static const int screenHeight = 720;
+Texture2D spritesTexture;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -81,6 +89,8 @@ int main(void)
     font = LoadFont("resources/mecha.png");
     //music = LoadMusicStream("resources/ambient.ogg"); // TODO: Load music
     fxCoin = LoadSound("resources/coin.wav");
+    // Load texture for sprites
+    spritesTexture = LoadTexture(SPRITES_PNG);        // Texture loading
 
     SetMusicVolume(music, 1.0f);
     PlayMusicStream(music);
@@ -116,6 +126,7 @@ int main(void)
     }
 
     // Unload global data loaded
+    UnloadTexture(spritesTexture);
     UnloadFont(font);
     UnloadMusicStream(music);
     UnloadSound(fxCoin);
