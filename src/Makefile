@@ -44,6 +44,7 @@ PROJECT_SOURCE_FILES  ?= \
     unit.c \
     ui.c \
     sprites.c \
+    timer.c \
     input.c
 
 # raylib library variables
@@ -359,7 +360,7 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     endif
     ifeq ($(PLATFORM_OS),LINUX)
 	find . -type f -executable -delete
-	rm -fv *.o
+	rm -fv *.o external/*/*.o
     endif
     ifeq ($(PLATFORM_OS),OSX)
 	rm -f *.o external/*.o $(PROJECT_NAME) external/*/*.o

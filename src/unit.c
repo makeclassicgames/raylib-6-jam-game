@@ -27,7 +27,8 @@ void AttackUnit(void);
 void MergeUnits(void);
 void WaitUnit(void);
 
-ContextMenu unitContextMenu;
+
+Unit* selectedUnit = NULL;
 
 void InitUnit(Unit* unit,UnitType unitType,int x,int y ,int owner){
     unitProperties = LoadUnitProperties();
@@ -50,65 +51,16 @@ void InitUnit(Unit* unit,UnitType unitType,int x,int y ,int owner){
 
 void UpdateUnit(Unit * unit){
 
-    if(GetLastInputAction() == SELECT){
-        if(CheckCollisionPointRec(GetMousePosition(), unit->boundingBox)){
-            unit->selected = true;
-            InitContextMenu(&unitContextMenu);
-            AddButtonToContextMenu(&unitContextMenu, "Move", MoveUnit);
-            AddButtonToContextMenu(&unitContextMenu, "Attack", AttackUnit);
-            AddButtonToContextMenu(&unitContextMenu, "Merge", MergeUnits);
-            AddButtonToContextMenu(&unitContextMenu, "Wait", WaitUnit);
-            ShowContextMenu(&unitContextMenu);
-
-        }else{
-            if(!unitContextMenu.active){
-                unit->selected = false;
-
-            }
-        }
-    }
-    if(unit->selected){
-        UpdateContextMenu(&unitContextMenu,(Vector2){unit->boundingBox.x+ unit->boundingBox.width,unit->boundingBox.y},GetLastInputAction()==SELECT);
-    }
 }
 
 void DrawUnit(Unit* unit){
 
     Vector2 drawPosition = {(unit->position.x-1) * 32 + 8, (unit->position.y-1) * 32 + 8};
-    switch (unit->type)
-    {
-    case SOLDIER:
-        drawSprite(0, drawPosition);
-        break;
-    case TANK:
-        drawSprite(1, drawPosition);
-        break;
-    case PLANE:
-        drawSprite(2, drawPosition);
-        break;
-    default:
-        break;
-    }
-    if(unit->selected){
-       DrawRectangleLines(unit->boundingBox.x, unit->boundingBox.y, unit->boundingBox.width, unit->boundingBox.height, YELLOW);
-       DrawContextMenu(&unitContextMenu, (Vector2){unit->boundingBox.x + unit->boundingBox.width, unit->boundingBox.y});
-    }
+    drawSprite(unit->type, drawPosition);
+   
 }
 
-void MoveUnit(void){
-    TraceLog(LOG_INFO, "Move Unit");
-}
 
-void AttackUnit(void){
-    TraceLog(LOG_INFO, "Attack Unit");
-
-}
-void MergeUnits(void){
-    TraceLog(LOG_INFO, "Merge Units");
-}
-void WaitUnit(void){
-    TraceLog(LOG_INFO, "Wait Unit");
-}
 
 
 
@@ -128,7 +80,7 @@ UnitProperties* LoadUnitProperties(){
     UnitProperties* properties = (UnitProperties*)malloc(UnitNumber*sizeof(UnitProperties));
 
     for (int i = 0; i < UnitNumber; i++) {
-printf("loadesd\n");
+        printf("loadesd\n");
         cJSON* unitJson = cJSON_GetArrayItem(json, i);
         properties[i].hp = cJSON_GetObjectItem(unitJson, "max_hp")->valueint;
         properties[i].damage = cJSON_GetObjectItem(unitJson, "damage")->valuedouble;
