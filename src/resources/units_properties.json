@@ -9,10 +9,18 @@
     },
     {
         "id": 1,
-        "max_hp": 50,
+        "max_hp": 100,
         "damage": 20,
         "speed": 5,
         "attack_range": 3,
         "armor": 1.5
+    },
+    {
+        "id": 2,
+        "max_hp": 50,
+        "damage": 30,
+        "speed": 10,
+        "attack_range": 4,
+        "armor": 1.3
     }
 ]
