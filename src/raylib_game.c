@@ -36,7 +36,7 @@
 // Texture resource
 
 #define SPRITES_PNG "resources/sprites.png"
-
+#define THEME_OGG "resources/theme.ogg"
 
 //----------------------------------------------------------------------------------
 // Shared Variables Definition (global)
@@ -85,7 +85,7 @@ int main(void)
 
     // Load global data (assets that must be available in all screens, i.e. font)
     font = LoadFont("resources/mecha.png");
-    //music = LoadMusicStream("resources/ambient.ogg"); // TODO: Load music
+    music = LoadMusicStream(THEME_OGG); // TODO: Load music
     fxCoin = LoadSound("resources/coin.wav");
     // Load texture for sprites
     spritesTexture = LoadTexture(SPRITES_PNG);        // Texture loading
@@ -245,7 +245,7 @@ static void UpdateDrawFrame(void)
 {
     // Update
     //----------------------------------------------------------------------------------
-    //UpdateMusicStream(music);       // NOTE: Music keeps playing between screens
+    UpdateMusicStream(music);       // NOTE: Music keeps playing between screens
 
     if (!onTransition)
     {
