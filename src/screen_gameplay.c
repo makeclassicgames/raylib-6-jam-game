@@ -291,7 +291,7 @@ void DrawAttackState(void)
     Color lineColor = RED;
     for(int i=0;i<MAX_UNITS;i++){
         if(CheckCollisionPointRec(GetMousePosition(), game.enemyTeam.units[i].boundingBox) && game.enemyTeam.units[i].active){
-            distance = CalculateDistance(selectedUnit->position, game.enemyTeam.units[i].position);
+            distance = CalculateDistance(selectedUnit->position, attackTargetPosition);
             lineColor = (distance <= selectedUnit->attack_range) ? GREEN : RED;
             break;
         }
