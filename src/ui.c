@@ -38,7 +38,6 @@ void DrawContextMenu(ContextMenu *menu, Vector2 position)
 {
     if (!menu->active)
     {
-        TraceLog(LOG_INFO, "Context menu is not active, skipping draw");
         return;
     }
     Rectangle contextMenuRect = (Rectangle){position.x, position.y, 100, menu->buttonCount * 40};
@@ -112,7 +111,7 @@ void DrawContextMessage(ContextMessage *message)
     {
         return;
     }
-    DrawRectangle(message->position.x, message->position.y, GetScreenWidth() / 2, 40, GRAY);
+    DrawRectangle(message->position.x, message->position.y, GetScreenWidth()*0.75, 40, GRAY);
     Color color = WHITE;
     switch (message->type)
     {

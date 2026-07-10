@@ -3,6 +3,6 @@
 
 extern Texture2D spritesTexture;
 
-void drawSprite(int sprite, Vector2 drawPosition);
+void drawSprite(int sprite, Vector2 drawPosition, int team);
 
 #endif

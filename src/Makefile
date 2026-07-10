@@ -45,6 +45,7 @@ PROJECT_SOURCE_FILES  ?= \
     ui.c \
     sprites.c \
     timer.c \
+    game.c \
     input.c
 
 # raylib library variables

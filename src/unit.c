@@ -46,6 +46,8 @@ void InitUnit(Unit* unit,UnitType unitType,int x,int y ,int owner){
     unit->moved = false;
     unit->attacked = false;
     unit->merged = false;
+    unit->active = true;
+    unit->max_hp = properties.hp;
     unit->boundingBox = (Rectangle){(unit->position.x-1) * 32, (unit->position.y-1) * 32, 32, 32};
 }
 
@@ -53,15 +55,30 @@ void UpdateUnit(Unit * unit){
 
 }
 
-void DrawUnit(Unit* unit){
+void DrawUnit(Unit* unit, int team){
 
+    if(!unit->active){
+        return;
+    }
     Vector2 drawPosition = {(unit->position.x-1) * 32 + 8, (unit->position.y-1) * 32 + 8};
-    drawSprite(unit->type, drawPosition);
+    drawSprite(unit->type, drawPosition, team);
    
 }
 
 
-
+char * GetUnitTypeName(UnitType type){
+    
+    switch(type){
+        case SOLDIER:
+            return "Soldier";
+        case TANK:
+            return "Tank";
+        case PLANE:
+            return "Plane";
+        default:
+            return "Unknown";
+    }
+}
 
 
 UnitProperties* LoadUnitProperties(){
@@ -91,4 +108,6 @@ UnitProperties* LoadUnitProperties(){
     cJSON_Delete(json);
     return properties;
 }
+
+
 
