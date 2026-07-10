@@ -139,3 +139,43 @@ void HideContextMessage(ContextMessage *message)
 {
     message->active = false;
 }
+
+void InitButton(Button* button, const char* text, Vector2 position, void (*callback)()){
+    
+    button->boundingBox = (Rectangle){position.x, position.y, 100, 40};
+    button->text = text;
+    button->isHovered = false;
+    button->active = true;
+    button->callback = callback;
+}
+void UpdateButton(Button* button, Vector2 mousePosition, bool mousePressed){
+    if(!button->active){
+        return;
+    }
+    if(CheckCollisionPointRec(mousePosition, button->boundingBox)){
+        button->isHovered = true;
+        if(mousePressed){
+            button->callback();
+        }
+    }else{
+        button->isHovered = false;
+    }
+}
+void DrawButton(Button* button){
+    if(!button->active){
+        return;
+    }
+    Color color = GRAY;
+    if(button->isHovered){
+        color = DARKGRAY;
+        DrawRectangleLines(button->boundingBox.x-2, button->boundingBox.y-2, button->boundingBox.width+4, button->boundingBox.height+4, WHITE);
+    }
+    DrawRectangleRec(button->boundingBox, color);
+    DrawText(button->text, button->boundingBox.x + 10, button->boundingBox.y + 10, 15, WHITE);
+}
+void HideButton(Button* button){
+    button->active = false;
+}
+void ShowButton(Button* button){
+    button->active = true;
+}

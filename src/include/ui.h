@@ -32,6 +32,14 @@ typedef struct{
 
 }ContextMenu;
 
+typedef struct{
+    Rectangle boundingBox;
+    const char* text;
+    bool isHovered;
+    bool active;
+    void(*callback)();
+}Button;
+
 void InitContextMenu(ContextMenu* menu);
 void UpdateContextMenu(ContextMenu* menu, Vector2 position,bool mousePressed);
 void ShowContextMenu(ContextMenu* menu);
@@ -48,5 +56,11 @@ void UpdateContextMessage(ContextMessage* message);
 void DrawContextMessage(ContextMessage* message);
 void ShowContextMessage(ContextMessage* message, const char* text, int duration, MessageType type, void (*callback)());
 void HideContextMessage(ContextMessage* message);
+
+void InitButton(Button* button, const char* text, Vector2 position, void (*callback)());
+void UpdateButton(Button* button, Vector2 mousePosition, bool mousePressed);
+void DrawButton(Button* button);
+void HideButton(Button* button);
+void ShowButton(Button* button);
 
 #endif

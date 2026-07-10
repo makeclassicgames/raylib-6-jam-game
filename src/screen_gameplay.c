@@ -31,13 +31,14 @@
 #include "map.h"
 #include "unit.h"
 #include "ui.h"
+#include "physics.h"
 #include "input.h"
 
 #define MAP_WIDTH 18
 #define MAP_HEIGHT 23
 
-
-typedef enum{
+typedef enum
+{
     IDLE,
     MOVE_STATE,
     ATTACK_STATE,
@@ -50,37 +51,43 @@ typedef enum{
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
-static Map gameMap;                 // Declare a Map variable to hold the game map
-static Game game; // Declare a Game variable to hold the game state
+static Map gameMap; // Declare a Map variable to hold the game map
+static Game game;   // Declare a Game variable to hold the game state
 static ContextMenu unitContextMenu;
 static Unit *selectedUnit;
 static GAMEPLAY_ACTION currentAction;
 static Vector2 targetPosition;
 static ContextMessage contextMessage;
+static Button finishTurnButton;
+static Vector2 attackTargetPosition;
+static Unit* attackTargetUnit;
 
 void MoveUnit(void);
 void AttackUnit(void);
 void MergeUnits(void);
 void WaitUnit(void);
 
-
-//Update States
+// Update States
 
 void UpdateIdleState(void);
 void UpdateMoveState(void);
+void UpdateAttackState(void);
 
-//Draw States
+// Draw States
 void DrawIdleState(void);
 void DrawMoveState(void);
+void DrawAttackState(void);
 
-//Game State
+// Game State
 void DrawGameState(void);
 
-//Callbacks
-
-void onContextMessageClose(void){
+// Callbacks
+void finishTurnCallback(void);
+void onContextMessageClose(void)
+{
     HideContextMessage(&contextMessage);
 }
+
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Definition
 //----------------------------------------------------------------------------------
@@ -99,7 +106,8 @@ void InitGameplayScreen(void)
     AddButtonToContextMenu(&unitContextMenu, "Attack", AttackUnit);
     AddButtonToContextMenu(&unitContextMenu, "Merge", MergeUnits);
     AddButtonToContextMenu(&unitContextMenu, "Wait", WaitUnit);
-    InitContextMesage(&contextMessage, (Vector2){0,0});
+    InitContextMesage(&contextMessage, (Vector2){0, 0});
+    InitButton(&finishTurnButton, "Finish Turn", (Vector2){GetScreenWidth() - 120, 400}, finishTurnCallback);
 }
 
 // Gameplay Screen Update logic
@@ -110,41 +118,42 @@ void UpdateGameplayScreen(void)
 
     switch (currentAction)
     {
-        case IDLE:
-            UpdateIdleState();
+    case IDLE:
+        UpdateIdleState();
         break;
-        case MOVE_STATE:
-            UpdateMoveState();
+    case MOVE_STATE:
+        UpdateMoveState();
         break;
-        case ATTACK_STATE:
+    case ATTACK_STATE:
+        UpdateAttackState();
         break;
-        case MERGE_STATE:
+    case MERGE_STATE:
         break;
-        case WAIT_STATE:
+    case WAIT_STATE:
         break;
     }
-   
-    
 
     for (int i = 0; i < MAX_UNITS; i++)
     {
         UpdateUnit(&game.playerTeam.units[i]);
     }
     UpdateContextMessage(&contextMessage);
+    UpdateButton(&finishTurnButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
 }
-
 
 void UpdateIdleState(void)
 {
-    if(selectedUnit !=NULL){
+    if (selectedUnit != NULL)
+    {
         Vector2 unitPosition = {selectedUnit->boundingBox.x + selectedUnit->boundingBox.width, selectedUnit->boundingBox.y};
         UpdateContextMenu(&unitContextMenu, unitPosition, GetLastInputAction() == CONFIRM);
     }
-    
+
     if (GetLastInputAction() == CONFIRM)
     {
         HideContextMenu(&unitContextMenu);
-        if(selectedUnit != NULL && currentAction == IDLE){
+        if (selectedUnit != NULL && currentAction == IDLE)
+        {
             selectedUnit = NULL;
         }
 
@@ -157,31 +166,56 @@ void UpdateIdleState(void)
                 break;
             }
         }
-        
     }
-    
-
-  
 }
 
-void UpdateMoveState(void){
+void UpdateMoveState(void)
+{
 
-    if(selectedUnit !=NULL && selectedUnit->moved){
+    if (selectedUnit != NULL && selectedUnit->moved)
+    {
         currentAction = IDLE;
         selectedUnit = NULL;
     }
-    targetPosition = (Vector2){(int)(GetMousePosition().x / 32) * 32 +16, (int)(GetMousePosition().y / 32) * 32 +16};
+    targetPosition = (Vector2){(int)(GetMousePosition().x / 32) * 32 + 16, (int)(GetMousePosition().y / 32) * 32 + 16};
     float distance = sqrtf(powf((targetPosition.x - (selectedUnit->position.x - 1) * 32 - 16), 2) + powf((targetPosition.y - (selectedUnit->position.y - 1) * 32 - 16), 2)) / 32.0f;
 
-    if(GetLastInputAction() == CONFIRM && distance <= selectedUnit->speed){
-        selectedUnit->position = (Vector2){(int)(targetPosition.x / 32) +1, (int)(targetPosition.y / 32) +1};
-        selectedUnit->boundingBox = (Rectangle){(selectedUnit->position.x-1) * 32, (selectedUnit->position.y-1) * 32, 32, 32};
+    if (GetLastInputAction() == CONFIRM && distance <= selectedUnit->speed)
+    {
+        selectedUnit->position = (Vector2){(int)(targetPosition.x / 32) + 1, (int)(targetPosition.y / 32) + 1};
+        selectedUnit->boundingBox = (Rectangle){(selectedUnit->position.x - 1) * 32, (selectedUnit->position.y - 1) * 32, 32, 32};
         currentAction = IDLE;
         selectedUnit->moved = true;
         selectedUnit = NULL;
     }
 
-    if(GetLastInputAction() == CANCEL){
+    if (GetLastInputAction() == CANCEL)
+    {
+        currentAction = IDLE;
+    }
+}
+
+void UpdateAttackState(void)
+{
+    if (selectedUnit != NULL && selectedUnit->attacked)
+    {
+        currentAction = IDLE;
+        selectedUnit = NULL;
+    }
+    attackTargetPosition= (Vector2){(int)(GetMousePosition().x / 32) * 32 + 16, (int)(GetMousePosition().y / 32) * 32 + 16};
+   
+    for(int i=0;i<MAX_UNITS;i++){
+        if(CheckCollisionPointRec(GetMousePosition(), game.enemyTeam.units[i].boundingBox) && game.enemyTeam.units[i].active){
+            float distance = CalculateDistance(selectedUnit->position,attackTargetPosition);
+            if(GetLastInputAction()==CONFIRM && distance<=selectedUnit->attack_range){
+               attackTargetUnit = &game.enemyTeam.units[i];
+               //TOOD: Calculate Attack
+               break;
+            }
+        }
+    }
+    if (GetLastInputAction() == CANCEL)
+    {
         currentAction = IDLE;
     }
 }
@@ -192,13 +226,13 @@ void DrawGameplayScreen(void)
     // TODO: Draw GAMEPLAY screen here!
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), PURPLE);
     DrawMap(&gameMap);
-    //PlayerUnits
+    // PlayerUnits
     for (int i = 0; i < MAX_UNITS; i++)
     {
         DrawUnit(&game.playerTeam.units[i], 0);
     }
 
-    //EnemyUnits
+    // EnemyUnits
     for (int i = 0; i < MAX_UNITS; i++)
     {
         DrawUnit(&game.enemyTeam.units[i], 1);
@@ -206,25 +240,27 @@ void DrawGameplayScreen(void)
 
     switch (currentAction)
     {
-        case IDLE:
-            DrawIdleState();
+    case IDLE:
+        DrawIdleState();
         break;
-        case MOVE_STATE:
-            DrawMoveState();
+    case MOVE_STATE:
+        DrawMoveState();
         break;
-        case ATTACK_STATE:
+    case ATTACK_STATE:
+        DrawAttackState();
         break;
-        case MERGE_STATE:
+    case MERGE_STATE:
         break;
-        case WAIT_STATE:
+    case WAIT_STATE:
         break;
     }
     DrawGameState();
-    DrawContextMessage(&contextMessage);
 
+    DrawContextMessage(&contextMessage);
 }
 
-void DrawIdleState(void){
+void DrawIdleState(void)
+{
     if (selectedUnit != NULL)
     {
         DrawRectangleLines(selectedUnit->boundingBox.x, selectedUnit->boundingBox.y, selectedUnit->boundingBox.width, selectedUnit->boundingBox.height, YELLOW);
@@ -232,33 +268,55 @@ void DrawIdleState(void){
     }
 }
 
-void DrawMoveState(void){
+void DrawMoveState(void)
+{
     if (selectedUnit != NULL)
     {
         DrawRectangleLines(selectedUnit->boundingBox.x, selectedUnit->boundingBox.y, selectedUnit->boundingBox.width, selectedUnit->boundingBox.height, YELLOW);
     }
-    
+
     float distance = sqrtf(powf((targetPosition.x - (selectedUnit->position.x - 1) * 32 - 16), 2) + powf((targetPosition.y - (selectedUnit->position.y - 1) * 32 - 16), 2)) / 32.0f;
     Color lineColor = (distance <= selectedUnit->speed) ? GREEN : RED;
     DrawRectangleLines(targetPosition.x - 16, targetPosition.y - 16, 32, 32, lineColor);
 }
 
-
-void DrawGameState(void){
-    DrawRectangle(GetScreenWidth()-144,0, 144, GetScreenHeight(), DARKGRAY);
-    DrawText(TextFormat("Day: %d", game.day), GetScreenWidth()-100, 10, 20, WHITE);
-    DrawText(TextFormat("Turn: %d", (game.turn == TEAM1_TURN) ? 1 : 2), GetScreenWidth()-110, 40, 20, WHITE);
-    DrawText(TextFormat("Player Units: %d", game.playerTeam.activeUnitsCount), GetScreenWidth()-130, 70, 17, BLUE);
-    DrawText(TextFormat("Enemy Units: %d", game.enemyTeam.activeUnitsCount), GetScreenWidth()-125, 100, 17, RED);
-    DrawRectangle(GetScreenWidth()-130, 150, 120, 190, GRAY);
-    if(selectedUnit != NULL) {
-        DrawText(TextFormat("%s", GetUnitTypeName(selectedUnit->type)), GetScreenWidth()-100, 160, 17, WHITE);
-        DrawText(TextFormat("HP: %d/%d", selectedUnit->hp, selectedUnit->max_hp), GetScreenWidth()-120, 190, 17, WHITE);
-        DrawText(TextFormat("Damage: %.1f", selectedUnit->damage), GetScreenWidth()-120, 220, 17, WHITE);
-        DrawText(TextFormat("Speed: %d", selectedUnit->speed), GetScreenWidth()-120, 250, 17, WHITE);
-        DrawText(TextFormat("Range: %d", selectedUnit->attack_range), GetScreenWidth()-120, 280, 17, WHITE);
-        DrawText(TextFormat("Armor: %.1f", selectedUnit->armor), GetScreenWidth()-120, 310, 17, WHITE);
+void DrawAttackState(void)
+{
+    if (selectedUnit != NULL)
+    {
+        DrawRectangleLines(selectedUnit->boundingBox.x, selectedUnit->boundingBox.y, selectedUnit->boundingBox.width, selectedUnit->boundingBox.height, YELLOW);
     }
+    
+    float distance = CalculateDistance(selectedUnit->position, attackTargetPosition);
+    Color lineColor = RED;
+    for(int i=0;i<MAX_UNITS;i++){
+        if(CheckCollisionPointRec(GetMousePosition(), game.enemyTeam.units[i].boundingBox) && game.enemyTeam.units[i].active){
+            distance = CalculateDistance(selectedUnit->position, game.enemyTeam.units[i].position);
+            lineColor = (distance <= selectedUnit->attack_range) ? GREEN : RED;
+            break;
+        }
+    }
+    DrawRectangleLines(attackTargetPosition.x - 16, attackTargetPosition.y - 16, 32, 32, lineColor);
+}
+
+void DrawGameState(void)
+{
+    DrawRectangle(GetScreenWidth() - 144, 0, 144, GetScreenHeight(), DARKGRAY);
+    DrawText(TextFormat("Day: %d", game.day), GetScreenWidth() - 100, 10, 20, WHITE);
+    DrawText(TextFormat("Turn: %d", (game.turn == TEAM1_TURN) ? 1 : 2), GetScreenWidth() - 110, 40, 20, WHITE);
+    DrawText(TextFormat("Player Units: %d", game.playerTeam.activeUnitsCount), GetScreenWidth() - 130, 70, 17, BLUE);
+    DrawText(TextFormat("Enemy Units: %d", game.enemyTeam.activeUnitsCount), GetScreenWidth() - 125, 100, 17, RED);
+    DrawRectangle(GetScreenWidth() - 130, 150, 120, 190, GRAY);
+    if (selectedUnit != NULL)
+    {
+        DrawText(TextFormat("%s", GetUnitTypeName(selectedUnit->type)), GetScreenWidth() - 100, 160, 17, WHITE);
+        DrawText(TextFormat("HP: %d/%d", selectedUnit->hp, selectedUnit->max_hp), GetScreenWidth() - 120, 190, 17, WHITE);
+        DrawText(TextFormat("Damage: %.1f", selectedUnit->damage), GetScreenWidth() - 120, 220, 17, WHITE);
+        DrawText(TextFormat("Speed: %d", selectedUnit->speed), GetScreenWidth() - 120, 250, 17, WHITE);
+        DrawText(TextFormat("Range: %d", selectedUnit->attack_range), GetScreenWidth() - 120, 280, 17, WHITE);
+        DrawText(TextFormat("Armor: %.1f", selectedUnit->armor), GetScreenWidth() - 120, 310, 17, WHITE);
+    }
+    DrawButton(&finishTurnButton);
 }
 
 // Gameplay Screen Unload logic
@@ -276,17 +334,29 @@ int FinishGameplayScreen(void)
 void MoveUnit(void)
 {
     currentAction = MOVE_STATE;
-    if(selectedUnit->moved) {
+    if (selectedUnit->moved)
+    {
         ShowContextMessage(&contextMessage, "Unit has moved", 120, MESSAGE_ERROR, onContextMessageClose);
         currentAction = IDLE;
-    }else{
+    }
+    else
+    {
         ShowContextMessage(&contextMessage, "Select Target Destination (Right Click to cancel)", 120, MESSAGE_INFO, onContextMessageClose);
     }
 }
 
 void AttackUnit(void)
 {
-    TraceLog(LOG_INFO, "Attack Unit");
+    currentAction = ATTACK_STATE;
+    if (selectedUnit->attacked)
+    {
+        ShowContextMessage(&contextMessage, "Unit has attacked", 120, MESSAGE_ERROR, onContextMessageClose);
+        currentAction = IDLE;
+    }
+    else
+    {
+        ShowContextMessage(&contextMessage, "Select Target Unit (Right Click to cancel)", 120, MESSAGE_INFO, onContextMessageClose);
+    }
 }
 void MergeUnits(void)
 {
@@ -295,4 +365,20 @@ void MergeUnits(void)
 void WaitUnit(void)
 {
     TraceLog(LOG_INFO, "Wait Unit");
+}
+
+void finishTurnCallback(void)
+{
+
+    if (game.turn == TEAM1_TURN)
+    {
+        game.turn = TEAM2_TURN;
+        ShowContextMessage(&contextMessage, "Enemy Turn", 120, MESSAGE_INFO, onContextMessageClose);
+    }
+    else
+    {
+        game.turn = TEAM1_TURN;
+        game.day++;
+        ShowContextMessage(&contextMessage, "Player Turn", 120, MESSAGE_INFO, onContextMessageClose);
+    }
 }
