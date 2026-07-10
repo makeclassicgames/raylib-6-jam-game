@@ -107,7 +107,7 @@ void InitGameplayScreen(void)
     AddButtonToContextMenu(&unitContextMenu, "Merge", MergeUnits);
     AddButtonToContextMenu(&unitContextMenu, "Wait", WaitUnit);
     InitContextMesage(&contextMessage, (Vector2){0, 0});
-    InitButton(&finishTurnButton, "Finish Turn", (Vector2){GetScreenWidth() - 120, 400}, finishTurnCallback);
+    InitButton(&finishTurnButton, "Finish Turn", (Vector2){GetScreenWidth() - 120, 420}, finishTurnCallback);
 }
 
 // Gameplay Screen Update logic
@@ -306,7 +306,7 @@ void DrawGameState(void)
     DrawText(TextFormat("Turn: %d", (game.turn == TEAM1_TURN) ? 1 : 2), GetScreenWidth() - 110, 40, 20, WHITE);
     DrawText(TextFormat("Player Units: %d", game.playerTeam.activeUnitsCount), GetScreenWidth() - 130, 70, 17, BLUE);
     DrawText(TextFormat("Enemy Units: %d", game.enemyTeam.activeUnitsCount), GetScreenWidth() - 125, 100, 17, RED);
-    DrawRectangle(GetScreenWidth() - 130, 150, 120, 190, GRAY);
+    DrawRectangle(GetScreenWidth() - 130, 150, 120, 250, GRAY);
     if (selectedUnit != NULL)
     {
         DrawText(TextFormat("%s", GetUnitTypeName(selectedUnit->type)), GetScreenWidth() - 100, 160, 17, WHITE);
@@ -315,6 +315,8 @@ void DrawGameState(void)
         DrawText(TextFormat("Speed: %d", selectedUnit->speed), GetScreenWidth() - 120, 250, 17, WHITE);
         DrawText(TextFormat("Range: %d", selectedUnit->attack_range), GetScreenWidth() - 120, 280, 17, WHITE);
         DrawText(TextFormat("Armor: %.1f", selectedUnit->armor), GetScreenWidth() - 120, 310, 17, WHITE);
+        DrawText(TextFormat("Moved: %s", selectedUnit->moved ? "Yes" : "No"), GetScreenWidth() - 120, 340, 17, WHITE);
+        DrawText(TextFormat("Attacked: %s", selectedUnit->attacked ? "Yes" : "No"), GetScreenWidth() - 120, 370, 17, WHITE);
     }
     DrawButton(&finishTurnButton);
 }

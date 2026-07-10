@@ -84,7 +84,7 @@ void UpdateButtonContext(ButtonMenu *button, int buttonIndex, Vector2 position, 
 }
 void DrawButtonContext(ButtonMenu *button, Vector2 position)
 {
-    Rectangle buttonRect = (Rectangle){position.x, position.y, 80, 30};
+    Rectangle buttonRect = (Rectangle){position.x, position.y, 90, 30};
     Color color = DARKGRAY;
     if (button->isHovered)
     {
