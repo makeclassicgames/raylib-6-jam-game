@@ -42,8 +42,12 @@ PROJECT_SOURCE_FILES  ?= \
     map.c \
     external/cjson/cJSON.c \
     unit.c \
-    input.c \
-    sprites.c
+    ui.c \
+    sprites.c \
+    timer.c \
+    physics.c \
+    game.c \
+    input.c
 
 # raylib library variables
 RAYLIB_PATH           ?= ../../raylib
@@ -358,10 +362,10 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     endif
     ifeq ($(PLATFORM_OS),LINUX)
 	find . -type f -executable -delete
-	rm -fv *.o
+	rm -fv *.o external/*/*.o
     endif
     ifeq ($(PLATFORM_OS),OSX)
-	rm -f *.o external/*.o $(PROJECT_NAME)
+	rm -f *.o external/*.o $(PROJECT_NAME) external/*/*.o
     endif
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)

@@ -13,6 +13,7 @@ typedef struct{
     UnitType type;
     Vector2 position;
     int hp;
+    int max_hp;
     float damage;
     int speed;
     int attack_range;
@@ -23,11 +24,14 @@ typedef struct{
     bool attacked;
     bool merged;
     Rectangle boundingBox;
+    bool active;
 }Unit;
 
 void InitUnit(Unit* unit,UnitType unitType,int x,int y ,int owner);
 void UpdateUnit(Unit * unit);
-void DrawUnit(Unit* unit);
+void DrawUnit(Unit* unit, int team);
 void UnloadUnit(Unit* unit);
+
+char * GetUnitTypeName(UnitType type);
 
 #endif

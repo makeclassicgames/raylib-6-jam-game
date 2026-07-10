@@ -2,14 +2,12 @@
 #include <stdlib.h>
 #include "unit.h"
 #include "input.h"
+#include "ui.h"
 #include "cjson/cJSON.h"
 #include "sprites.h"
 
-#if defined(PLATFORM_WEB)
-    #define JSON_UNIT_PATH "units_properties.json"
-#else
-    #define JSON_UNIT_PATH "resources/units_properties.json"
-#endif
+
+#define JSON_UNIT_PATH "resources/units_properties.json"
 
 
 typedef struct{
@@ -23,6 +21,14 @@ typedef struct{
 UnitProperties* unitProperties;
 
 UnitProperties* LoadUnitProperties();
+
+void MoveUnit(void);
+void AttackUnit(void);
+void MergeUnits(void);
+void WaitUnit(void);
+
+
+Unit* selectedUnit = NULL;
 
 void InitUnit(Unit* unit,UnitType unitType,int x,int y ,int owner){
     unitProperties = LoadUnitProperties();
@@ -40,41 +46,40 @@ void InitUnit(Unit* unit,UnitType unitType,int x,int y ,int owner){
     unit->moved = false;
     unit->attacked = false;
     unit->merged = false;
+    unit->active = true;
+    unit->max_hp = properties.hp;
     unit->boundingBox = (Rectangle){(unit->position.x-1) * 32, (unit->position.y-1) * 32, 32, 32};
 }
 
 void UpdateUnit(Unit * unit){
 
-    if(GetLastInputAction() == SELECT){
-        if(CheckCollisionPointRec(GetMousePosition(), unit->boundingBox)){
-            unit->selected = true;
-        }else{
-            unit->selected = false;
-        }
-    }
 }
 
-void DrawUnit(Unit* unit){
+void DrawUnit(Unit* unit, int team){
 
+    if(!unit->active){
+        return;
+    }
     Vector2 drawPosition = {(unit->position.x-1) * 32 + 8, (unit->position.y-1) * 32 + 8};
-    switch (unit->type)
-    {
-    case SOLDIER:
-        drawSprite(0, drawPosition);
-        break;
-    case TANK:
-        drawSprite(1, drawPosition);
-        break;
-    case PLANE:
-        drawSprite(2, drawPosition);
-        break;
-    default:
-        break;
-    }
-    if(unit->selected){
-        DrawRectangleLines(unit->boundingBox.x, unit->boundingBox.y, unit->boundingBox.width, unit->boundingBox.height, YELLOW);
+    drawSprite(unit->type, drawPosition, team);
+   
+}
+
+
+char * GetUnitTypeName(UnitType type){
+    
+    switch(type){
+        case SOLDIER:
+            return "Soldier";
+        case TANK:
+            return "Tank";
+        case PLANE:
+            return "Plane";
+        default:
+            return "Unknown";
     }
 }
+
 
 UnitProperties* LoadUnitProperties(){
   
@@ -92,7 +97,7 @@ UnitProperties* LoadUnitProperties(){
     UnitProperties* properties = (UnitProperties*)malloc(UnitNumber*sizeof(UnitProperties));
 
     for (int i = 0; i < UnitNumber; i++) {
-printf("loadesd\n");
+        printf("loadesd\n");
         cJSON* unitJson = cJSON_GetArrayItem(json, i);
         properties[i].hp = cJSON_GetObjectItem(unitJson, "max_hp")->valueint;
         properties[i].damage = cJSON_GetObjectItem(unitJson, "damage")->valuedouble;
@@ -103,3 +108,6 @@ printf("loadesd\n");
     cJSON_Delete(json);
     return properties;
 }
+
+
+

@@ -5,8 +5,8 @@
 
 typedef enum{
     NONE,
-    SELECT,
-    MOVE
+    CONFIRM,
+    CANCEL
 }Actions;
 
 void HandleInput(void);
