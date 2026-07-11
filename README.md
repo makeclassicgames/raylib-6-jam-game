@@ -1,75 +1,30 @@
------------------------------------
-_DISCLAIMER:_
+## Hex Wars
 
-Welcome to the **raylib game template**!
-
-This template provides a base structure to start developing a small raylib game in plain C. The repo is also pre-configured with a default `LICENSE` (zlib/libpng) and a `README.md` (this one) to be properly filled by users. Feel free to change the LICENSE as required.
-
-All the sections defined by `$(Data to Fill)` are expected to be edited and filled properly. It's recommended to delete this disclaimer message after editing this `README.md` file.
-
------------------------------------
-
-## Getting Started with this template
-
-### Windows: Visual Studio
-
-- After extracting the zip, the parent folder `raylib-game-template` should exist in the same directory as `raylib` itself.  So, your file structure should look like this:
-    - Some parent directory
-        - `raylib`
-            - the contents of https://github.com/raysan5/raylib
-        - `raylib-game-template`
-            - this `README.md` and all other raylib-game-template files
-- If using Visual Studio, open projects/VS2022/raylib-game-template.sln
-- Select on `raylib_game` in the solution explorer, then in the toolbar at the top, click `Project` > `Set as Startup Project`
-- Now you're all set up!  Click `Local Windows Debugger` with the green play arrow and the project will run.
-
-### Linux
-
-When setting up this template on linux for the first time, install the dependencies from this page:
-([Working on GNU Linux](https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux))
-
-You can use this templates in a few ways: using Visual Studio, using CMake, or make your own build setup. This repository comes with Visual Studio and CMake already set up.
-
-Chose one of the follow setup options that fit in you development environment.
-
-### CLI: Makefile
-
-```sh
-mkdir ~/raylib-gamejam && cd ~/raylib-gamejam
-git clone --depth 1 --branch 6.0 https://github.com/raysan5/raylib
-make -C raylib/src
-git clone https://github.com/$(User Name)/$(Repo Name).git
-cd $(Repo Name)
-make -C src
-src/raylib_game
-```
-
-This template has been created to be used with raylib (www.raylib.com) and it's licensed under an unmodified zlib/libpng license.
-
-_Copyright (c) 2014-2026 Ramon Santamaria ([@raysan5](https://github.com/raysan5))_
-
------------------------------------
-
-## $(Game Title)
-
-![$(Game Title)](screenshots/screenshot000.png "$(Game Title)")
+![Hex Wars](screenshots/screen1.png "Hex Wars")
 
 ### Description
 
-$(Your Game Description)
+Hex Wars is a turn-based strategy game where players control armies on a hexagonal grid. The objective is to outmaneuver and defeat your opponents using strategic planning and tactical decisions.
 
 ### Features
 
- - $(Game Feature 01)
- - $(Game Feature 02)
- - $(Game Feature 03)
+ - Turn Based gameplay on a hexagonal grid.
+ - Multiple units with unique properties.
+ - Unique terrain types.
+ - Merge Mode: Combine attacks for increased damage.
+ - Defense mode: Fortify your units to withstand enemy attacks. 
 
 ### Controls
 
-Keyboard:
- - $(Game Control 01)
- - $(Game Control 02)
- - $(Game Control 03)
+Mouse
+
+ - Left Click: Select unit / Move unit / Attack.
+ - Right Click: Cancel action / Deselect unit.
+
+Mobile
+
+ - Tap: Select unit / Move unit / Attack.
+ - Double Tap: Cancel action / Deselect unit.
 
 ### Screenshots
 
@@ -77,20 +32,18 @@ _TODO: Show your game to the world, animated GIFs recommended!._
 
 ### Developers
 
- - $(Developer 01) - $(Role/Tasks Developed)
- - $(Developer 02) - $(Role/Tasks Developed)
- - $(Developer 03) - $(Role/Tasks Developed)
+ - Zerasul (Make Classic Games) -  Game Design and Programming.
+ - Emiliollbb - Programming, Art and Sound Design.
 
 ### Links
 
- - YouTube Gameplay: $(YouTube Link)
- - itch.io Release: $(itch.io Game Page)
- - Steam Release: $(Steam Game Page)
+ - itch.io Release: [itch.io Game Page](https://zerasul.itch.io/hex-wars).
 
 ### License
 
-This project sources are licensed under an unmodified zlib/libpng license, which is an OSI-certified, BSD-like license that allows static linking with closed source software. Check [LICENSE](LICENSE) for further details.
+This project sources are licensed under GPL v3.0 License.
+Check [LICENSE](LICENSE) for further details.
 
-$(Additional Licenses)
+Raylib is licensed under zlib/libpng License. Check [Raylib License](https://www.raylib.com/license.html) for further details.
 
-*Copyright (c) $(Year) $(User Name) ($(User Twitter/GitHub Name))*
+*Copyright (c) 2026 Zerasul(Make Classic Games) and Emiliollbb.*
