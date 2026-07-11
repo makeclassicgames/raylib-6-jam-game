@@ -39,3 +39,13 @@ void resetTurn(Game* game){
     recalculateActiveUnitsCount(&game->playerTeam);
     recalculateActiveUnitsCount(&game->enemyTeam);
 }
+
+int FinishedGame(Game *game){
+    if(game->playerTeam.activeUnitsCount == 0){
+        return LOSE;
+    }
+    if(game->enemyTeam.activeUnitsCount == 0){
+        return WIN;
+    }
+    return ON_GAME;
+}

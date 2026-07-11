@@ -35,7 +35,7 @@
 #include "input.h"
 
 #define MAP_WIDTH 18
-#define MAP_HEIGHT 23
+#define MAP_HEIGHT 22
 
 typedef enum
 {
@@ -43,7 +43,6 @@ typedef enum
     MOVE_STATE,
     ATTACK_STATE,
     MERGE_STATE,
-    DEFEND_STATE,
     GAME_OVER_STATE
 } GAMEPLAY_ACTION;
 
@@ -71,6 +70,7 @@ static Unit *attackTargetUnit;
 static Vector2 mergeTargetPosition;
 static MERGE_STATES currentMergeState;
 static Unit *mergeAllyUnit;
+static Button continueButton;
 
 static Timer cpuTurnTimer;
 static int cpuCurrentUnitIndex = 0;
@@ -86,6 +86,7 @@ void UpdateIdleState(void);
 void UpdateMoveState(void);
 void UpdateAttackState(void);
 void UpdateMergeState(void);
+void UpdateGameOverState(void);
 
 // Merge Update States
 void UpdateMergeAllyUnitState(void);
@@ -96,6 +97,7 @@ void DrawIdleState(void);
 void DrawMoveState(void);
 void DrawAttackState(void);
 void DrawMergeState(void);
+void DrawGameOverState(void);
 
 // Merge Draw Status
 void DrawMergeAllyUnitState(void);
@@ -107,6 +109,7 @@ void DrawGameState(void);
 // Callbacks
 void finishTurnCallback(void);
 void onCPuTurnTimerComplete(void);
+void onGameOverContinueButtonClick(void);
 void onContextMessageClose(void)
 {
     HideContextMessage(&contextMessage);
@@ -133,6 +136,7 @@ void InitGameplayScreen(void)
     InitContextMesage(&contextMessage, (Vector2){0, 0});
     InitButton(&finishTurnButton, "Finish Turn", (Vector2){GetScreenWidth() - 120, 440}, finishTurnCallback);
     InitTimer(&cpuTurnTimer, 90, true, false, onCPuTurnTimerComplete);
+    InitButton(&continueButton, "Continue", (Vector2){GetScreenWidth() *0.35, GetScreenHeight() / 2 + 40}, onGameOverContinueButtonClick);
 }
 
 // Gameplay Screen Update logic
@@ -157,7 +161,8 @@ void UpdateGameplayScreen(void)
         case MERGE_STATE:
             UpdateMergeState();
             break;
-        case DEFEND_STATE:
+        case GAME_OVER_STATE:
+            UpdateGameOverState();
             break;
         }
 
@@ -171,6 +176,11 @@ void UpdateGameplayScreen(void)
 
         UpdateTimer(&cpuTurnTimer);
     }
+
+    if(FinishedGame(&game) != ON_GAME){
+        currentAction = GAME_OVER_STATE;
+    }
+
     UpdateContextMessage(&contextMessage);
     UpdateButton(&finishTurnButton, GetMousePosition(), GetLastInputAction() == CONFIRM && game.turn == TEAM1_TURN);
 }
@@ -345,6 +355,11 @@ void UpdateMergeAttackUnitState(void)
     }
 }
 
+
+void UpdateGameOverState(void){
+    UpdateButton(&continueButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
+}
+
 // Gameplay Screen Draw logic
 void DrawGameplayScreen(void)
 {
@@ -377,7 +392,8 @@ void DrawGameplayScreen(void)
     case MERGE_STATE:
         DrawMergeState();
         break;
-    case DEFEND_STATE:
+    case GAME_OVER_STATE:
+        DrawGameOverState();
         break;
     }
     DrawGameState();
@@ -475,6 +491,12 @@ void DrawMergeAttackUnitState(void)
     }
     DrawRectangleLines(attackTargetPosition.x - 16, attackTargetPosition.y - 16, 32, 32, lineColor);
     DrawRectangleLines(mergeAllyUnit->boundingBox.x, mergeAllyUnit->boundingBox.y, mergeAllyUnit->boundingBox.width, mergeAllyUnit->boundingBox.height, GREEN);
+}
+
+void DrawGameOverState(){
+    DrawRectangle(GetScreenWidth()*0.20, GetScreenHeight()*0.25, GetScreenWidth()*0.45, GetScreenHeight()*0.5, DARKGRAY);
+    DrawText((FinishedGame(&game) == WIN) ? "You Win!" : "You Lose!", GetScreenWidth()*0.33, GetScreenHeight()*0.45, 30, WHITE);
+    DrawButton(&continueButton);
 }
 
 void DrawGameState(void)
@@ -672,4 +694,8 @@ void onCPuTurnTimerComplete(void)
         finishTurnCallback();
         return;
     }
+}
+
+void onGameOverContinueButtonClick(void){
+    finishScreen = 1;
 }

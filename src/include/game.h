@@ -17,6 +17,12 @@ typedef enum{
     TEAM_CPU
 }TeamType;
 
+typedef enum{
+    ON_GAME,
+    WIN,
+    LOSE
+}GAME_FINISHED;
+
 typedef struct{
     Color color;
     Unit units[MAX_UNITS];
@@ -38,5 +44,7 @@ void recalculateActiveUnitsCount(Team *team);
 void resetTurn(Game* game);
 
 Unit* getActiveUnitsFromTeam(Team *team, int *unitCount);
+
+int FinishedGame(Game *game);
 
 #endif
