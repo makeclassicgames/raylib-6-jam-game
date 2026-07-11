@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "unit.h"
@@ -8,6 +9,7 @@
 
 
 #define JSON_UNIT_PATH "resources/units_properties.json"
+
 
 
 typedef struct{
@@ -83,6 +85,30 @@ void MoveUnit(Unit* unit, Vector2 targetPosition){
     unit->moved = true;
 }
 
+
+int AttackUnit(Unit* attacker, Unit* target){
+
+    float defense = (target->defending)?target->armor*1.5: target->armor;
+    int totaldamage = floorf(attacker->damage * (1- defense/100));
+    target->hp-= totaldamage;
+    if(target->hp<=0){
+        target->hp = 0;
+        target->active = false;
+    }
+    return totaldamage;
+}
+
+int MergeUnits(Unit* unit1, Unit* unit2, Unit* targetUnit){
+    float defense = (targetUnit->defending)?targetUnit->armor*1.5: targetUnit->armor;
+    int totaldamage = floorf((unit1->damage+unit2->damage)*(1-defense/100));
+    targetUnit->hp-= totaldamage;
+    if(targetUnit->hp<=0){
+        targetUnit->hp = 0;
+        targetUnit->active = false;
+    }
+    return totaldamage;
+
+}
 void resetUnit(Unit* unit){
     unit->selected = false;
     unit->moved = false;

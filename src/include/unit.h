@@ -3,6 +3,8 @@
 
 #include <raylib.h>
 
+#define MERGE_RANGE 3
+
 typedef enum{
     SOLDIER,
     TANK,
@@ -37,8 +39,8 @@ char * GetUnitTypeName(UnitType type);
 
 void MoveUnit(Unit* unit, Vector2 targetPosition);
 void resetUnit(Unit* unit);
-void AttackUnit(Unit* attacker, Unit* target);
-void MergeUnits(Unit* unit1, Unit* unit2, Unit* targetUnit);
+int AttackUnit(Unit* attacker, Unit* target);
+int MergeUnits(Unit* unit1, Unit* unit2, Unit* targetUnit);
 void DefendUnit(Unit* unit);
 
 #endif

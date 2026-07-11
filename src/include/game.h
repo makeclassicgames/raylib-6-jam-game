@@ -6,6 +6,7 @@
 
 #define MAX_UNITS 9
 
+
 typedef enum{
    TEAM1_TURN,
    TEAM2_TURN
@@ -32,6 +33,9 @@ typedef struct{
 
 void InitGame(Game *game);
 void InitTeam(Team *team, Color color, TeamType type);
+
+void recalculateActiveUnitsCount(Team *team);
+void resetTurn(Game* game);
 
 Unit* getActiveUnitsFromTeam(Team *team, int *unitCount);
 

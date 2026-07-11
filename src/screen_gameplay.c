@@ -22,7 +22,7 @@
  *     3. This notice may not be removed or altered from any source distribution.
  *
  **********************************************************************************************/
-
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <raylib.h>
@@ -47,6 +47,11 @@ typedef enum
     GAME_OVER_STATE
 } GAMEPLAY_ACTION;
 
+typedef enum{
+    MERGE_ALLY_UNIT,
+    MERGE_ATTACK_UNIT
+}MERGE_STATES;
+
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
@@ -62,6 +67,9 @@ static ContextMessage contextMessage;
 static Button finishTurnButton;
 static Vector2 attackTargetPosition;
 static Unit* attackTargetUnit;
+static Vector2 mergeTargetPosition;
+static MERGE_STATES currentMergeState;
+static Unit* mergeAllyUnit;
 
 void Move(void);
 void Attack(void);
@@ -73,11 +81,21 @@ void Defend(void);
 void UpdateIdleState(void);
 void UpdateMoveState(void);
 void UpdateAttackState(void);
+void UpdateMergeState(void);
+
+// Merge Update States
+void UpdateMergeAllyUnitState(void);
+void UpdateMergeAttackUnitState(void);
 
 // Draw States
 void DrawIdleState(void);
 void DrawMoveState(void);
 void DrawAttackState(void);
+void DrawMergeState(void);
+
+//Merge Draw Status
+void DrawMergeAllyUnitState(void);
+void DrawMergeAttackUnitState(void);
 
 // Game State
 void DrawGameState(void);
@@ -129,6 +147,7 @@ void UpdateGameplayScreen(void)
         UpdateAttackState();
         break;
     case MERGE_STATE:
+        UpdateMergeState();
         break;
     case DEFEND_STATE:
         break;
@@ -209,7 +228,18 @@ void UpdateAttackState(void)
             float distance = CalculateDistance(selectedUnit->position,attackTargetPosition);
             if(GetLastInputAction()==CONFIRM && distance<=selectedUnit->attack_range){
                attackTargetUnit = &game.enemyTeam.units[i];
-               //TOOD: Calculate Attack
+               int damage = AttackUnit(selectedUnit,attackTargetUnit);
+               TraceLog(LOG_INFO, "%s attack %s with %d damage",GetUnitTypeName(selectedUnit->type),GetUnitTypeName(attackTargetUnit->type), damage);
+               const char * buffer= malloc(50*sizeof(char));
+               sprintf(buffer,"%s attack %s with %d damage",GetUnitTypeName(selectedUnit->type),GetUnitTypeName(attackTargetUnit->type), damage);
+               ShowContextMessage(&contextMessage,
+                buffer,120,MESSAGE_ERROR,onContextMessageClose);
+               recalculateActiveUnitsCount(&game.enemyTeam);
+               selectedUnit->attacked = true;
+               selectedUnit->moved = true; 
+               currentAction = IDLE;
+               attackTargetUnit = NULL;
+               selectedUnit = NULL;           
                break;
             }
         }
@@ -217,6 +247,73 @@ void UpdateAttackState(void)
     if (GetLastInputAction() == CANCEL)
     {
         currentAction = IDLE;
+        attackTargetUnit = NULL;
+    }
+}
+
+void UpdateMergeState(void){
+
+    switch(currentMergeState){
+        case MERGE_ALLY_UNIT:
+            UpdateMergeAllyUnitState();
+        break;
+        case MERGE_ATTACK_UNIT:
+            UpdateMergeAttackUnitState();
+            break;
+    }
+    if(GetLastInputAction() == CANCEL){
+        currentAction = IDLE;
+        currentMergeState = MERGE_ALLY_UNIT;
+        mergeAllyUnit = NULL;
+        attackTargetUnit = NULL;
+        return;
+    }
+}
+
+void UpdateMergeAllyUnitState(void){
+
+    mergeTargetPosition = (Vector2){(int)(GetMousePosition().x / 32) * 32 + 16, (int)(GetMousePosition().y / 32) * 32 + 16};
+    for(int i=0;i<MAX_UNITS;i++){
+        if(CheckCollisionPointRec(mergeTargetPosition, game.playerTeam.units[i].boundingBox) && game.playerTeam.units[i].active && &game.playerTeam.units[i] != selectedUnit){
+            float distance = CalculateDistance(selectedUnit->position,mergeTargetPosition);
+            if(GetLastInputAction()==CONFIRM && distance<=MERGE_RANGE){
+                mergeAllyUnit = &game.playerTeam.units[i];
+                currentMergeState = MERGE_ATTACK_UNIT;
+                ShowContextMessage(&contextMessage,"Select Enemy Unit to Attack",120,MESSAGE_INFO,onContextMessageClose);
+                break;
+            }
+        }
+    }
+}
+
+void UpdateMergeAttackUnitState(void){
+
+    attackTargetPosition= (Vector2){(int)(GetMousePosition().x / 32) * 32 + 16, (int)(GetMousePosition().y / 32) * 32 + 16};
+    for(int i=0;i<MAX_UNITS;i++){
+        if(CheckCollisionPointRec(GetMousePosition(), game.enemyTeam.units[i].boundingBox) && game.enemyTeam.units[i].active){
+            float distance = CalculateDistance(selectedUnit->position,attackTargetPosition);
+            if(GetLastInputAction()==CONFIRM && distance<=selectedUnit->attack_range){
+                Unit* targetUnit = &game.enemyTeam.units[i];
+                int damage = MergeUnits(selectedUnit,mergeAllyUnit,targetUnit);
+                TraceLog(LOG_INFO, "%s and %s merge to attack %s with %d damage",GetUnitTypeName(selectedUnit->type),GetUnitTypeName(mergeAllyUnit->type),GetUnitTypeName(targetUnit->type), damage);
+                const char * buffer= malloc(50*sizeof(char));
+                sprintf(buffer,"%s and %s attack %s with %d damage",GetUnitTypeName(selectedUnit->type),GetUnitTypeName(mergeAllyUnit->type),GetUnitTypeName(targetUnit->type), damage);
+                ShowContextMessage(&contextMessage,
+                buffer,120,MESSAGE_ERROR,onContextMessageClose);
+                recalculateActiveUnitsCount(&game.enemyTeam);
+                selectedUnit->attacked = true;
+                selectedUnit->moved = true; 
+                mergeAllyUnit->attacked = true;
+                mergeAllyUnit->moved = true;
+                currentAction = IDLE;
+                attackTargetUnit = NULL;
+                selectedUnit = NULL;
+                mergeAllyUnit = NULL;
+                mergeTargetPosition = (Vector2){0, 0};
+                currentMergeState = MERGE_ALLY_UNIT;
+                break;
+            }
+        }
     }
 }
 
@@ -250,6 +347,7 @@ void DrawGameplayScreen(void)
         DrawAttackState();
         break;
     case MERGE_STATE:
+        DrawMergeState();
         break;
     case DEFEND_STATE:
         break;
@@ -299,11 +397,54 @@ void DrawAttackState(void)
     DrawRectangleLines(attackTargetPosition.x - 16, attackTargetPosition.y - 16, 32, 32, lineColor);
 }
 
+void DrawMergeState(void){
+
+    DrawRectangleLines(selectedUnit->boundingBox.x, selectedUnit->boundingBox.y, selectedUnit->boundingBox.width, selectedUnit->boundingBox.height, YELLOW);
+
+    switch (currentMergeState)
+    {
+    case MERGE_ALLY_UNIT:
+        DrawMergeAllyUnitState();
+        break;
+    case MERGE_ATTACK_UNIT:
+        DrawMergeAttackUnitState();
+        break;
+    default:
+        break;
+    }
+}
+
+//Merge Draw Status
+void DrawMergeAllyUnitState(void){
+    Color lineColor = RED;
+    for(int i=0;i<MAX_UNITS;i++){
+        if(CheckCollisionPointRec(mergeTargetPosition, game.playerTeam.units[i].boundingBox) && game.playerTeam.units[i].active && &game.playerTeam.units[i] != selectedUnit){
+            float distance = CalculateDistance(selectedUnit->position, mergeTargetPosition);
+            lineColor = (distance <= MERGE_RANGE) ? GREEN : RED;
+            break;
+        }
+    }
+    DrawRectangleLines(mergeTargetPosition.x - 16, mergeTargetPosition.y - 16, 32, 32, lineColor);
+}
+void DrawMergeAttackUnitState(void){
+
+    Color lineColor = RED;
+    for(int i=0;i<MAX_UNITS;i++){
+        if(CheckCollisionPointRec(attackTargetPosition, game.enemyTeam.units[i].boundingBox) && game.enemyTeam.units[i].active){
+            float distance = CalculateDistance(selectedUnit->position, attackTargetPosition);
+            lineColor = (distance <= selectedUnit->attack_range) ? GREEN : RED;
+            break;
+        }
+    }
+    DrawRectangleLines(attackTargetPosition.x - 16, attackTargetPosition.y - 16, 32, 32, lineColor);
+    DrawRectangleLines(mergeAllyUnit->boundingBox.x, mergeAllyUnit->boundingBox.y, mergeAllyUnit->boundingBox.width, mergeAllyUnit->boundingBox.height, GREEN);
+}
+
 void DrawGameState(void)
 {
     DrawRectangle(GetScreenWidth() - 144, 0, 144, GetScreenHeight(), DARKGRAY);
     DrawText(TextFormat("Day: %d", game.day), GetScreenWidth() - 100, 10, 20, WHITE);
-    DrawText(TextFormat("Turn: %d", (game.turn == TEAM1_TURN) ? 1 : 2), GetScreenWidth() - 110, 40, 20, WHITE);
+    DrawText(TextFormat("%s Turn", (game.turn == TEAM1_TURN) ? "Player" : "Enemy"), GetScreenWidth() - 135, 40, 20, WHITE);
     DrawText(TextFormat("Player Units: %d", game.playerTeam.activeUnitsCount), GetScreenWidth() - 130, 70, 17, BLUE);
     DrawText(TextFormat("Enemy Units: %d", game.enemyTeam.activeUnitsCount), GetScreenWidth() - 125, 100, 17, RED);
     DrawRectangle(GetScreenWidth() - 130, 150, 120, 270, GRAY);
@@ -369,7 +510,14 @@ void Attack(void)
 }
 void Merge(void)
 {
-    TraceLog(LOG_INFO, "Merge Units");
+    if(selectedUnit->attacked || selectedUnit->defending){
+        ShowContextMessage(&contextMessage, "Unit has attacked or is defending", 120, MESSAGE_ERROR, onContextMessageClose);
+        currentAction = IDLE;
+        return;
+    }else{
+        ShowContextMessage(&contextMessage, "Select ally unit to merge with (Right Click to cancel)", 120, MESSAGE_INFO, onContextMessageClose);
+        currentAction = MERGE_STATE;
+    }
 }
 void Defend(void)
 {
@@ -404,6 +552,7 @@ void finishTurnCallback(void)
     {
         game.turn = TEAM1_TURN;
         game.day++;
+        resetTurn(&game);
         ShowContextMessage(&contextMessage, "Player Turn", 120, MESSAGE_INFO, onContextMessageClose);
     }
 }

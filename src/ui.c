@@ -128,7 +128,7 @@ void DrawContextMessage(ContextMessage *message)
     DrawText(message->text, message->position.x + 10, message->position.y + 10, 20, color);
 }
 void ShowContextMessage(ContextMessage *message, const char *text, int duration, MessageType type, void (*callback)()){
-    
+    TraceLog(LOG_INFO, "Context message shown: %s", text);
     message->text = text;
     message->type = type;
     message->active = true;
