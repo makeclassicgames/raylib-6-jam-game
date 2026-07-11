@@ -28,7 +28,11 @@ Mobile
 
 ### Screenshots
 
-_TODO: Show your game to the world, animated GIFs recommended!._
+![ScreenShot 1](screenshots/screen1.png "Screenshot 1")
+
+![ScreenShot 2](screenshots/screen2.png "Screenshot 2")
+
+![ScreenShot 3](screenshots/screen3.png "Screenshot 3")
 
 ### Developers
 
