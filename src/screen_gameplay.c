@@ -43,7 +43,8 @@ typedef enum
     MOVE_STATE,
     ATTACK_STATE,
     MERGE_STATE,
-    WAIT_STATE
+    DEFEND_STATE,
+    GAME_OVER_STATE
 } GAMEPLAY_ACTION;
 
 //----------------------------------------------------------------------------------
@@ -65,7 +66,7 @@ static Unit* attackTargetUnit;
 void MoveUnit(void);
 void AttackUnit(void);
 void MergeUnits(void);
-void WaitUnit(void);
+void DefendUnit(void);
 
 // Update States
 
@@ -105,9 +106,9 @@ void InitGameplayScreen(void)
     AddButtonToContextMenu(&unitContextMenu, "Move", MoveUnit);
     AddButtonToContextMenu(&unitContextMenu, "Attack", AttackUnit);
     AddButtonToContextMenu(&unitContextMenu, "Merge", MergeUnits);
-    AddButtonToContextMenu(&unitContextMenu, "Wait", WaitUnit);
+    AddButtonToContextMenu(&unitContextMenu, "Defend", DefendUnit);
     InitContextMesage(&contextMessage, (Vector2){0, 0});
-    InitButton(&finishTurnButton, "Finish Turn", (Vector2){GetScreenWidth() - 120, 420}, finishTurnCallback);
+    InitButton(&finishTurnButton, "Finish Turn", (Vector2){GetScreenWidth() - 120, 440}, finishTurnCallback);
 }
 
 // Gameplay Screen Update logic
@@ -129,7 +130,7 @@ void UpdateGameplayScreen(void)
         break;
     case MERGE_STATE:
         break;
-    case WAIT_STATE:
+    case DEFEND_STATE:
         break;
     }
 
@@ -251,7 +252,7 @@ void DrawGameplayScreen(void)
         break;
     case MERGE_STATE:
         break;
-    case WAIT_STATE:
+    case DEFEND_STATE:
         break;
     }
     DrawGameState();
@@ -306,7 +307,7 @@ void DrawGameState(void)
     DrawText(TextFormat("Turn: %d", (game.turn == TEAM1_TURN) ? 1 : 2), GetScreenWidth() - 110, 40, 20, WHITE);
     DrawText(TextFormat("Player Units: %d", game.playerTeam.activeUnitsCount), GetScreenWidth() - 130, 70, 17, BLUE);
     DrawText(TextFormat("Enemy Units: %d", game.enemyTeam.activeUnitsCount), GetScreenWidth() - 125, 100, 17, RED);
-    DrawRectangle(GetScreenWidth() - 130, 150, 120, 250, GRAY);
+    DrawRectangle(GetScreenWidth() - 130, 150, 120, 270, GRAY);
     if (selectedUnit != NULL)
     {
         DrawText(TextFormat("%s", GetUnitTypeName(selectedUnit->type)), GetScreenWidth() - 100, 160, 17, WHITE);
@@ -314,9 +315,10 @@ void DrawGameState(void)
         DrawText(TextFormat("Damage: %.1f", selectedUnit->damage), GetScreenWidth() - 120, 220, 17, WHITE);
         DrawText(TextFormat("Speed: %d", selectedUnit->speed), GetScreenWidth() - 120, 250, 17, WHITE);
         DrawText(TextFormat("Range: %d", selectedUnit->attack_range), GetScreenWidth() - 120, 280, 17, WHITE);
-        DrawText(TextFormat("Armor: %.1f", selectedUnit->armor), GetScreenWidth() - 120, 310, 17, WHITE);
+        DrawText(TextFormat("Armor: %d", selectedUnit->armor), GetScreenWidth() - 120, 310, 17, WHITE);
         DrawText(TextFormat("Moved: %s", selectedUnit->moved ? "Yes" : "No"), GetScreenWidth() - 120, 340, 17, WHITE);
         DrawText(TextFormat("Attacked: %s", selectedUnit->attacked ? "Yes" : "No"), GetScreenWidth() - 120, 370, 17, WHITE);
+        DrawText(TextFormat("Defend: %s", selectedUnit->defending ? "Yes" : "No"), GetScreenWidth() - 120, 400, 17, WHITE);
     }
     DrawButton(&finishTurnButton);
 }
@@ -336,9 +338,14 @@ int FinishGameplayScreen(void)
 void MoveUnit(void)
 {
     currentAction = MOVE_STATE;
-    if (selectedUnit->moved)
+    if(selectedUnit->defending){
+        ShowContextMessage(&contextMessage, "Unit is defending and cannot move", 120, MESSAGE_ERROR, onContextMessageClose);
+        currentAction = IDLE;
+        return;
+    }
+    if (selectedUnit->moved || selectedUnit->attacked)
     {
-        ShowContextMessage(&contextMessage, "Unit has moved", 120, MESSAGE_ERROR, onContextMessageClose);
+        ShowContextMessage(&contextMessage, "Unit has moved or attacked", 120, MESSAGE_ERROR, onContextMessageClose);
         currentAction = IDLE;
     }
     else
@@ -350,23 +357,40 @@ void MoveUnit(void)
 void AttackUnit(void)
 {
     currentAction = ATTACK_STATE;
-    if (selectedUnit->attacked)
+    if (selectedUnit->attacked || selectedUnit->defending)
     {
-        ShowContextMessage(&contextMessage, "Unit has attacked", 120, MESSAGE_ERROR, onContextMessageClose);
+        ShowContextMessage(&contextMessage, "Unit has attacked or is defending", 120, MESSAGE_ERROR, onContextMessageClose);
         currentAction = IDLE;
     }
     else
     {
         ShowContextMessage(&contextMessage, "Select Target Unit (Right Click to cancel)", 120, MESSAGE_INFO, onContextMessageClose);
     }
+ 
 }
 void MergeUnits(void)
 {
     TraceLog(LOG_INFO, "Merge Units");
 }
-void WaitUnit(void)
+void DefendUnit(void)
 {
-    TraceLog(LOG_INFO, "Wait Unit");
+    if (selectedUnit->defending)
+    {
+        ShowContextMessage(&contextMessage, "Unit is already defending", 120, MESSAGE_ERROR, onContextMessageClose);
+        currentAction = IDLE;
+    }
+    else
+    {
+        if(selectedUnit->moved || selectedUnit->attacked){
+            ShowContextMessage(&contextMessage, "Unit has already moved or attacked", 120, MESSAGE_ERROR, onContextMessageClose);
+            currentAction = IDLE;
+            return;
+        }
+        selectedUnit->defending = true;
+        ShowContextMessage(&contextMessage, "Unit is now defending", 120, MESSAGE_INFO, onContextMessageClose);
+        currentAction = IDLE;
+    }
+    
 }
 
 void finishTurnCallback(void)

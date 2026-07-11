@@ -18,11 +18,12 @@ typedef struct{
     int speed;
     int attack_range;
     bool selected;
-    float armor;
+    int armor;
     int owner;
     bool moved;
     bool attacked;
     bool merged;
+    bool defending;
     Rectangle boundingBox;
     bool active;
 }Unit;
