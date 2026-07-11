@@ -63,10 +63,10 @@ static Button finishTurnButton;
 static Vector2 attackTargetPosition;
 static Unit* attackTargetUnit;
 
-void MoveUnit(void);
-void AttackUnit(void);
-void MergeUnits(void);
-void DefendUnit(void);
+void Move(void);
+void Attack(void);
+void Merge(void);
+void Defend(void);
 
 // Update States
 
@@ -103,10 +103,10 @@ void InitGameplayScreen(void)
     InitMap(&gameMap, MAP_WIDTH, MAP_HEIGHT);
     InitGame(&game);
     InitContextMenu(&unitContextMenu);
-    AddButtonToContextMenu(&unitContextMenu, "Move", MoveUnit);
-    AddButtonToContextMenu(&unitContextMenu, "Attack", AttackUnit);
-    AddButtonToContextMenu(&unitContextMenu, "Merge", MergeUnits);
-    AddButtonToContextMenu(&unitContextMenu, "Defend", DefendUnit);
+    AddButtonToContextMenu(&unitContextMenu, "Move", Move);
+    AddButtonToContextMenu(&unitContextMenu, "Attack", Attack);
+    AddButtonToContextMenu(&unitContextMenu, "Merge", Merge);
+    AddButtonToContextMenu(&unitContextMenu, "Defend", Defend);
     InitContextMesage(&contextMessage, (Vector2){0, 0});
     InitButton(&finishTurnButton, "Finish Turn", (Vector2){GetScreenWidth() - 120, 440}, finishTurnCallback);
 }
@@ -183,10 +183,9 @@ void UpdateMoveState(void)
 
     if (GetLastInputAction() == CONFIRM && distance <= selectedUnit->speed)
     {
-        selectedUnit->position = (Vector2){(int)(targetPosition.x / 32) + 1, (int)(targetPosition.y / 32) + 1};
-        selectedUnit->boundingBox = (Rectangle){(selectedUnit->position.x - 1) * 32, (selectedUnit->position.y - 1) * 32, 32, 32};
+        Vector2 movePosition = (Vector2){(int)(targetPosition.x / 32) + 1, (int)(targetPosition.y / 32) + 1};
+        MoveUnit(selectedUnit, movePosition);
         currentAction = IDLE;
-        selectedUnit->moved = true;
         selectedUnit = NULL;
     }
 
@@ -335,7 +334,7 @@ int FinishGameplayScreen(void)
     return finishScreen;
 }
 
-void MoveUnit(void)
+void Move(void)
 {
     currentAction = MOVE_STATE;
     if(selectedUnit->defending){
@@ -354,7 +353,7 @@ void MoveUnit(void)
     }
 }
 
-void AttackUnit(void)
+void Attack(void)
 {
     currentAction = ATTACK_STATE;
     if (selectedUnit->attacked || selectedUnit->defending)
@@ -368,11 +367,11 @@ void AttackUnit(void)
     }
  
 }
-void MergeUnits(void)
+void Merge(void)
 {
     TraceLog(LOG_INFO, "Merge Units");
 }
-void DefendUnit(void)
+void Defend(void)
 {
     if (selectedUnit->defending)
     {
@@ -386,7 +385,7 @@ void DefendUnit(void)
             currentAction = IDLE;
             return;
         }
-        selectedUnit->defending = true;
+        DefendUnit(selectedUnit);
         ShowContextMessage(&contextMessage, "Unit is now defending", 120, MESSAGE_INFO, onContextMessageClose);
         currentAction = IDLE;
     }

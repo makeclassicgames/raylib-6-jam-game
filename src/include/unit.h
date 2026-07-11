@@ -35,4 +35,10 @@ void UnloadUnit(Unit* unit);
 
 char * GetUnitTypeName(UnitType type);
 
+void MoveUnit(Unit* unit, Vector2 targetPosition);
+void resetUnit(Unit* unit);
+void AttackUnit(Unit* attacker, Unit* target);
+void MergeUnits(Unit* unit1, Unit* unit2, Unit* targetUnit);
+void DefendUnit(Unit* unit);
+
 #endif

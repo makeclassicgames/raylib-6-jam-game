@@ -22,10 +22,6 @@ UnitProperties* unitProperties;
 
 UnitProperties* LoadUnitProperties();
 
-void MoveUnit(void);
-void AttackUnit(void);
-void MergeUnits(void);
-void WaitUnit(void);
 
 
 Unit* selectedUnit = NULL;
@@ -81,6 +77,24 @@ char * GetUnitTypeName(UnitType type){
     }
 }
 
+void MoveUnit(Unit* unit, Vector2 targetPosition){
+    unit->position = targetPosition;
+    unit->boundingBox = (Rectangle){(unit->position.x-1) * 32, (unit->position.y-1) * 32, 32, 32};
+    unit->moved = true;
+}
+
+void resetUnit(Unit* unit){
+    unit->selected = false;
+    unit->moved = false;
+    unit->attacked = false;
+    unit->merged = false;
+    unit->defending = false;
+}
+
+
+void DefendUnit(Unit* unit){
+    unit->defending = true;
+}
 
 UnitProperties* LoadUnitProperties(){
   
