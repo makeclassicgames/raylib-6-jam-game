@@ -5,7 +5,7 @@
         "speed": 3,
         "damage": 10,
         "attack_range": 2,
-        "armor": 1.0
+        "armor": 1
     },
     {
         "id": 1,
@@ -13,7 +13,7 @@
         "damage": 20,
         "speed": 5,
         "attack_range": 3,
-        "armor": 1.5
+        "armor": 4
     },
     {
         "id": 2,
@@ -21,6 +21,6 @@
         "damage": 30,
         "speed": 10,
         "attack_range": 4,
-        "armor": 1.3
+        "armor": 2
     }
 ]

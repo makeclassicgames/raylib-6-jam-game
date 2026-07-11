@@ -15,17 +15,13 @@ typedef struct{
     float damage;
     int speed;
     int attack_range;
-    float armor;
+    int armor;
 }UnitProperties;
 
 UnitProperties* unitProperties;
 
 UnitProperties* LoadUnitProperties();
 
-void MoveUnit(void);
-void AttackUnit(void);
-void MergeUnits(void);
-void WaitUnit(void);
 
 
 Unit* selectedUnit = NULL;
@@ -47,6 +43,7 @@ void InitUnit(Unit* unit,UnitType unitType,int x,int y ,int owner){
     unit->attacked = false;
     unit->merged = false;
     unit->active = true;
+    unit->defending = false;
     unit->max_hp = properties.hp;
     unit->boundingBox = (Rectangle){(unit->position.x-1) * 32, (unit->position.y-1) * 32, 32, 32};
 }
@@ -80,6 +77,24 @@ char * GetUnitTypeName(UnitType type){
     }
 }
 
+void MoveUnit(Unit* unit, Vector2 targetPosition){
+    unit->position = targetPosition;
+    unit->boundingBox = (Rectangle){(unit->position.x-1) * 32, (unit->position.y-1) * 32, 32, 32};
+    unit->moved = true;
+}
+
+void resetUnit(Unit* unit){
+    unit->selected = false;
+    unit->moved = false;
+    unit->attacked = false;
+    unit->merged = false;
+    unit->defending = false;
+}
+
+
+void DefendUnit(Unit* unit){
+    unit->defending = true;
+}
 
 UnitProperties* LoadUnitProperties(){
   
@@ -103,7 +118,7 @@ UnitProperties* LoadUnitProperties(){
         properties[i].damage = cJSON_GetObjectItem(unitJson, "damage")->valuedouble;
         properties[i].speed = cJSON_GetObjectItem(unitJson, "speed")->valueint;
         properties[i].attack_range = cJSON_GetObjectItem(unitJson, "attack_range")->valueint;
-        properties[i].armor = cJSON_GetObjectItem(unitJson, "armor")->valuedouble;
+        properties[i].armor = cJSON_GetObjectItem(unitJson, "armor")->valueint;
     }
     cJSON_Delete(json);
     return properties;
