@@ -26,11 +26,14 @@
 #include "raylib.h"
 #include "screens.h"
 
+#define TITLE_PNG "resources/title.png"
+
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
+Texture2D titleScreen;
 
 //----------------------------------------------------------------------------------
 // Title Screen Functions Definition
@@ -42,6 +45,7 @@ void InitTitleScreen(void)
     // TODO: Initialize TITLE screen variables here!
     framesCounter = 0;
     finishScreen = 0;
+    titleScreen = LoadTexture(TITLE_PNG);
 }
 
 // Title Screen Update logic
@@ -61,17 +65,14 @@ void UpdateTitleScreen(void)
 // Title Screen Draw logic
 void DrawTitleScreen(void)
 {
-    // TODO: Draw TITLE screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), GREEN);
-    Vector2 pos = { 20, 10 };
-    DrawTextEx(font, "TITLE SCREEN", pos, font.baseSize*3.0f, 4, DARKGREEN);
-    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20, DARKGREEN);
+    DrawTexture(titleScreen, 0, 0, WHITE);
+    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 80, 680, 20, BLACK);
 }
 
 // Title Screen Unload logic
 void UnloadTitleScreen(void)
 {
-    // TODO: Unload TITLE screen variables here!
+    UnloadTexture(titleScreen);
 }
 
 // Title Screen should finish?
