@@ -42,6 +42,9 @@ extern Sound fxSelect;
 extern Sound fxHit;
 extern Sound themeMusic;
 extern Sound victoryTheme;
+extern Sound fxMoveCPU;
+extern Sound fxHitCPU;
+extern bool soundOn;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions

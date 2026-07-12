@@ -32,6 +32,7 @@
 
 void onStartButtonClick(void);
 void onCreditsButtonClick(void);
+void onSoundButtonClick(void);
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
@@ -40,6 +41,7 @@ static int framesCounter = 0;
 static int finishScreen = 0;
 static Button startButton;
 static Button creditsButton;
+static Button soundButton;
 Texture2D titleScreen;
 
 //----------------------------------------------------------------------------------
@@ -55,6 +57,7 @@ void InitTitleScreen(void)
     titleScreen = LoadTexture(TITLE_PNG);
     InitButton(&startButton, "START", (Vector2){ 160, 560 }, onStartButtonClick);
     InitButton(&creditsButton, "CREDITS", (Vector2){ 420, 560 }, onCreditsButtonClick);
+    InitButton(&soundButton, "SOUND: ON", (Vector2){ 580, 560 }, onSoundButtonClick);
     SetSoundVolume(themeMusic, 0.5f);
 }
 
@@ -67,6 +70,7 @@ void UpdateTitleScreen(void)
     if(IsSoundPlaying(themeMusic) == false) PlaySound(themeMusic);
     UpdateButton(&startButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
     UpdateButton(&creditsButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
+    UpdateButton(&soundButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
 }
 
 // Title Screen Draw logic
@@ -75,6 +79,7 @@ void DrawTitleScreen(void)
     DrawTexture(titleScreen, 0, 0, WHITE);
     DrawButton(&startButton);
     DrawButton(&creditsButton);
+    DrawButton(&soundButton);
 }
 
 // Title Screen Unload logic
@@ -97,4 +102,27 @@ void onStartButtonClick(void){
 void onCreditsButtonClick(void){
     finishScreen = 2;   // CREDITS
     PlaySound(fxSelect);
+}
+
+void onSoundButtonClick(void){
+    soundOn = !soundOn;
+    if (soundOn) {
+        SetSoundVolume(themeMusic, 0.5f);
+        SetSoundVolume(fxSelect, 0.5f);
+        SetSoundVolume(fxHit, 0.5f);
+        SetSoundVolume(victoryTheme, 0.5f);
+        SetSoundVolume(fxMoveCPU, 0.5f);
+        SetSoundVolume(fxHitCPU, 0.5f);
+        PlaySound(themeMusic);
+        soundButton.text = "SOUND: ON";
+    } else {
+        SetSoundVolume(themeMusic, 0.0f);
+        SetSoundVolume(fxSelect, 0.0f);
+        SetSoundVolume(fxHit, 0.0f);
+        SetSoundVolume(victoryTheme, 0.0f);
+        SetSoundVolume(fxMoveCPU, 0.0f);
+        SetSoundVolume(fxHitCPU, 0.0f);
+        StopSound(themeMusic);
+        soundButton.text = "SOUND: OFF";
+    }
 }

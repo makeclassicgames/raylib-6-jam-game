@@ -35,7 +35,7 @@
 #include "input.h"
 
 #define MAP_WIDTH 18
-#define MAP_HEIGHT 22
+#define MAP_HEIGHT 21
 
 typedef enum
 {
@@ -127,6 +127,13 @@ void InitGameplayScreen(void)
     finishScreen = 0;
     currentAction = IDLE;
     currentMergeState = MERGE_ALLY_UNIT;
+    if(soundOn){
+        SetSoundVolume(fxSelect, 0.5f);
+        SetSoundVolume(fxHit, 0.5f);
+        SetSoundVolume(victoryTheme, 0.5f);
+        SetSoundVolume(fxMoveCPU, 1.0f);
+        SetSoundVolume(fxHitCPU, 0.5f);
+    }
     InitMap(&gameMap, MAP_WIDTH, MAP_HEIGHT);
     InitGame(&game);
     InitContextMenu(&unitContextMenu);
@@ -186,9 +193,9 @@ void UpdateGameplayScreen(void)
         UpdateUnit(&game.playerTeam.units[i]);
     }
 
-    if (FinishedGame(&game) != ON_GAME && !currentAction == GAME_OVER_STATE)
+    if (FinishedGame(&game) != ON_GAME)
     {
-        if (FinishedGame(&game) == WIN)
+        if (FinishedGame(&game) == WIN && !currentAction == GAME_OVER_STATE)
         {
             PlaySound(victoryTheme);
         }
@@ -664,7 +671,7 @@ void onCPuTurnTimerComplete(void)
             float distance = CalculateDistance(currentUnit->position, game.playerTeam.units[i].position);
             if (distance <= currentUnit->attack_range)
             {
-                PlaySound(fxHit);
+                PlaySound(fxHitCPU);
                 AttackUnit(currentUnit, &game.playerTeam.units[i]);
                 TraceLog(LOG_INFO, "%s attack %s with %.1f damage", GetUnitTypeName(currentUnit->type), GetUnitTypeName(game.playerTeam.units[i].type), currentUnit->damage);
                 const char *buffer = malloc(50 * sizeof(char));
@@ -703,7 +710,7 @@ void onCPuTurnTimerComplete(void)
                 targetPosition.y = 1;
             }
             TraceLog(LOG_INFO, "CPU unit %s moving to (%d, %d)", GetUnitTypeName(currentUnit->type), (int)targetPosition.x, (int)targetPosition.y);
-
+            PlaySound(fxMoveCPU);
             MoveUnit(currentUnit, targetPosition);
             currentUnit->moved = true;
         }

@@ -50,6 +50,9 @@ Sound fxSelect = { 0 };
 Sound fxHit = { 0 };
 Sound themeMusic = { 0 };
 Sound victoryTheme = { 0 };
+Sound fxMoveCPU = { 0 };
+Sound fxHitCPU = { 0 };
+bool soundOn = true;
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
@@ -95,12 +98,20 @@ int main(void)
     fxSelect = LoadSound("resources/select.ogg");
     themeMusic = LoadSound("resources/theme.ogg");
     victoryTheme = LoadSound("resources/victory.ogg");
+    fxMoveCPU = LoadSound("resources/movCPU.ogg");
+    fxHitCPU = LoadSound("resources/hitCPU.ogg");
     // Load texture for sprites
     spritesTexture = LoadTexture(SPRITES_PNG);        // Texture loading
 
-    SetMusicVolume(music, 1.0f);
-    PlayMusicStream(music);
+   
+    SetSoundVolume(fxSelect, 0.5f);
+    SetSoundVolume(fxHit, 0.5f);
+    SetSoundVolume(victoryTheme, 0.5f);
+    SetSoundVolume(themeMusic, 0.5f);
+    SetSoundVolume(fxMoveCPU, 0.5f);
+    SetSoundVolume(fxHitCPU, 0.5f);
 
+    soundOn = true;
     // Setup and init first screen
     currentScreen = TITLE;
     InitTitleScreen();
@@ -140,6 +151,8 @@ int main(void)
     UnloadSound(fxSelect);
     UnloadSound(themeMusic);
     UnloadSound(victoryTheme);
+    UnloadSound(fxMoveCPU);
+    UnloadSound(fxHitCPU);
 
     CloseAudioDevice();     // Close audio context
 
