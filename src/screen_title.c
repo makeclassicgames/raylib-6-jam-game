@@ -25,14 +25,21 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "input.h"
+#include "ui.h"
 
 #define TITLE_PNG "resources/title.png"
+
+void onStartButtonClick(void);
+void onCreditsButtonClick(void);
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
+static Button startButton;
+static Button creditsButton;
 Texture2D titleScreen;
 
 //----------------------------------------------------------------------------------
@@ -46,27 +53,28 @@ void InitTitleScreen(void)
     framesCounter = 0;
     finishScreen = 0;
     titleScreen = LoadTexture(TITLE_PNG);
+    InitButton(&startButton, "START", (Vector2){ 160, 560 }, onStartButtonClick);
+    InitButton(&creditsButton, "CREDITS", (Vector2){ 420, 560 }, onCreditsButtonClick);
+    SetSoundVolume(themeMusic, 0.5f);
 }
 
 // Title Screen Update logic
 void UpdateTitleScreen(void)
 {
     // TODO: Update TITLE screen variables here!
-
+    HandleInput(); // Handle input events
     // Press enter or tap to change to GAMEPLAY screen
-    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-    {
-        //finishScreen = 1;   // OPTIONS
-        finishScreen = 2;   // GAMEPLAY
-        PlaySound(fxCoin);
-    }
+    if(IsSoundPlaying(themeMusic) == false) PlaySound(themeMusic);
+    UpdateButton(&startButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
+    UpdateButton(&creditsButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
 }
 
 // Title Screen Draw logic
 void DrawTitleScreen(void)
 {
     DrawTexture(titleScreen, 0, 0, WHITE);
-    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 80, 680, 20, BLACK);
+    DrawButton(&startButton);
+    DrawButton(&creditsButton);
 }
 
 // Title Screen Unload logic
@@ -79,4 +87,14 @@ void UnloadTitleScreen(void)
 int FinishTitleScreen(void)
 {
     return finishScreen;
+}
+
+void onStartButtonClick(void){
+    finishScreen = 1;   // GAMEPLAY
+    PlaySound(fxSelect);
+    StopSound(themeMusic);
+}
+void onCreditsButtonClick(void){
+    finishScreen = 2;   // CREDITS
+    PlaySound(fxSelect);
 }

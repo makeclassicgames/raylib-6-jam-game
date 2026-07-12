@@ -126,6 +126,7 @@ void InitGameplayScreen(void)
     framesCounter = 0;
     finishScreen = 0;
     currentAction = IDLE;
+    currentMergeState = MERGE_ALLY_UNIT;
     InitMap(&gameMap, MAP_WIDTH, MAP_HEIGHT);
     InitGame(&game);
     InitContextMenu(&unitContextMenu);
@@ -136,7 +137,7 @@ void InitGameplayScreen(void)
     InitContextMesage(&contextMessage, (Vector2){0, 0});
     InitButton(&finishTurnButton, "Finish Turn", (Vector2){GetScreenWidth() - 120, 440}, finishTurnCallback);
     InitTimer(&cpuTurnTimer, 90, true, false, onCPuTurnTimerComplete);
-    InitButton(&continueButton, "Continue", (Vector2){GetScreenWidth() *0.35, GetScreenHeight() / 2 + 40}, onGameOverContinueButtonClick);
+    InitButton(&continueButton, "Continue", (Vector2){GetScreenWidth() * 0.35, GetScreenHeight() / 2 + 40}, onGameOverContinueButtonClick);
 }
 
 // Gameplay Screen Update logic
@@ -165,19 +166,32 @@ void UpdateGameplayScreen(void)
             UpdateGameOverState();
             break;
         }
-
-        for (int i = 0; i < MAX_UNITS; i++)
-        {
-            UpdateUnit(&game.playerTeam.units[i]);
-        }
     }
     else
     {
 
         UpdateTimer(&cpuTurnTimer);
+        if (currentAction != GAME_OVER_STATE)
+        {
+            currentAction = IDLE;
+        }
+        else
+        {
+            UpdateGameOverState();
+        }
     }
 
-    if(FinishedGame(&game) != ON_GAME){
+    for (int i = 0; i < MAX_UNITS; i++)
+    {
+        UpdateUnit(&game.playerTeam.units[i]);
+    }
+
+    if (FinishedGame(&game) != ON_GAME && !currentAction == GAME_OVER_STATE)
+    {
+        if (FinishedGame(&game) == WIN)
+        {
+            PlaySound(victoryTheme);
+        }
         currentAction = GAME_OVER_STATE;
     }
 
@@ -254,6 +268,7 @@ void UpdateAttackState(void)
             float distance = CalculateDistance(selectedUnit->position, attackTargetPosition);
             if (GetLastInputAction() == CONFIRM && distance <= selectedUnit->attack_range)
             {
+                PlaySound(fxHit);
                 attackTargetUnit = &game.enemyTeam.units[i];
                 int damage = AttackUnit(selectedUnit, attackTargetUnit);
                 TraceLog(LOG_INFO, "%s attack %s with %d damage", GetUnitTypeName(selectedUnit->type), GetUnitTypeName(attackTargetUnit->type), damage);
@@ -331,6 +346,7 @@ void UpdateMergeAttackUnitState(void)
             float distance = CalculateDistance(selectedUnit->position, attackTargetPosition);
             if (GetLastInputAction() == CONFIRM && distance <= selectedUnit->attack_range)
             {
+                PlaySound(fxHit);
                 Unit *targetUnit = &game.enemyTeam.units[i];
                 int damage = MergeUnits(selectedUnit, mergeAllyUnit, targetUnit);
                 TraceLog(LOG_INFO, "%s and %s merge to attack %s with %d damage", GetUnitTypeName(selectedUnit->type), GetUnitTypeName(mergeAllyUnit->type), GetUnitTypeName(targetUnit->type), damage);
@@ -355,8 +371,8 @@ void UpdateMergeAttackUnitState(void)
     }
 }
 
-
-void UpdateGameOverState(void){
+void UpdateGameOverState(void)
+{
     UpdateButton(&continueButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
 }
 
@@ -493,9 +509,10 @@ void DrawMergeAttackUnitState(void)
     DrawRectangleLines(mergeAllyUnit->boundingBox.x, mergeAllyUnit->boundingBox.y, mergeAllyUnit->boundingBox.width, mergeAllyUnit->boundingBox.height, GREEN);
 }
 
-void DrawGameOverState(){
-    DrawRectangle(GetScreenWidth()*0.20, GetScreenHeight()*0.25, GetScreenWidth()*0.45, GetScreenHeight()*0.5, DARKGRAY);
-    DrawText((FinishedGame(&game) == WIN) ? "You Win!" : "You Lose!", GetScreenWidth()*0.33, GetScreenHeight()*0.45, 30, WHITE);
+void DrawGameOverState()
+{
+    DrawRectangle(GetScreenWidth() * 0.20, GetScreenHeight() * 0.25, GetScreenWidth() * 0.45, GetScreenHeight() * 0.5, DARKGRAY);
+    DrawText((FinishedGame(&game) == WIN) ? "You Win!" : "You Lose!", GetScreenWidth() * 0.33, GetScreenHeight() * 0.45, 30, WHITE);
     DrawButton(&continueButton);
 }
 
@@ -536,6 +553,7 @@ int FinishGameplayScreen(void)
 
 void Move(void)
 {
+    PlaySound(fxSelect);
     currentAction = MOVE_STATE;
     if (selectedUnit->defending)
     {
@@ -556,6 +574,7 @@ void Move(void)
 
 void Attack(void)
 {
+    PlaySound(fxSelect);
     currentAction = ATTACK_STATE;
     if (selectedUnit->attacked || selectedUnit->defending)
     {
@@ -569,6 +588,7 @@ void Attack(void)
 }
 void Merge(void)
 {
+    PlaySound(fxSelect);
     if (selectedUnit->attacked || selectedUnit->defending)
     {
         ShowContextMessage(&contextMessage, "Unit has attacked or is defending", 120, MESSAGE_ERROR, onContextMessageClose);
@@ -583,6 +603,7 @@ void Merge(void)
 }
 void Defend(void)
 {
+    PlaySound(fxSelect);
     if (selectedUnit->defending)
     {
         ShowContextMessage(&contextMessage, "Unit is already defending", 120, MESSAGE_ERROR, onContextMessageClose);
@@ -643,6 +664,7 @@ void onCPuTurnTimerComplete(void)
             float distance = CalculateDistance(currentUnit->position, game.playerTeam.units[i].position);
             if (distance <= currentUnit->attack_range)
             {
+                PlaySound(fxHit);
                 AttackUnit(currentUnit, &game.playerTeam.units[i]);
                 TraceLog(LOG_INFO, "%s attack %s with %.1f damage", GetUnitTypeName(currentUnit->type), GetUnitTypeName(game.playerTeam.units[i].type), currentUnit->damage);
                 const char *buffer = malloc(50 * sizeof(char));
@@ -696,6 +718,7 @@ void onCPuTurnTimerComplete(void)
     }
 }
 
-void onGameOverContinueButtonClick(void){
+void onGameOverContinueButtonClick(void)
+{
     finishScreen = 1;
 }

@@ -29,7 +29,7 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-typedef enum GameScreen { UNKNOWN = -1, LOGO = 0, TITLE, OPTIONS, GAMEPLAY, ENDING } GameScreen;
+typedef enum GameScreen { UNKNOWN = -1, LOGO = 0, TITLE, CREDITS, GAMEPLAY, ENDING } GameScreen;
 
 //----------------------------------------------------------------------------------
 // Global Variables Declaration (shared by several modules)
@@ -38,6 +38,10 @@ extern GameScreen currentScreen;
 extern Font font;
 extern Music music;
 extern Sound fxCoin;
+extern Sound fxSelect;
+extern Sound fxHit;
+extern Sound themeMusic;
+extern Sound victoryTheme;
 
 #ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions
@@ -62,13 +66,13 @@ void UnloadTitleScreen(void);
 int FinishTitleScreen(void);
 
 //----------------------------------------------------------------------------------
-// Options Screen Functions Declaration
+// Credits Screen Functions Declaration
 //----------------------------------------------------------------------------------
-void InitOptionsScreen(void);
-void UpdateOptionsScreen(void);
-void DrawOptionsScreen(void);
-void UnloadOptionsScreen(void);
-int FinishOptionsScreen(void);
+void InitCreditsScreen(void);
+void UpdateCreditsScreen(void);
+void DrawCreditsScreen(void);
+void UnloadCreditsScreen(void);
+int FinishCreditsScreen(void);
 
 //----------------------------------------------------------------------------------
 // Gameplay Screen Functions Declaration

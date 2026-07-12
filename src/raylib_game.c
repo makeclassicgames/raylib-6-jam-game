@@ -46,6 +46,10 @@ GameScreen currentScreen = LOGO;
 Font font = { 0 };
 Music music = { 0 };
 Sound fxCoin = { 0 };
+Sound fxSelect = { 0 };
+Sound fxHit = { 0 };
+Sound themeMusic = { 0 };
+Sound victoryTheme = { 0 };
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition (local to this module)
@@ -87,6 +91,10 @@ int main(void)
     font = LoadFont("resources/mecha.png");
     //music = LoadMusicStream("resources/ambient.ogg"); // TODO: Load music
     fxCoin = LoadSound("resources/coin.wav");
+    fxHit = LoadSound("resources/hit.ogg");
+    fxSelect = LoadSound("resources/select.ogg");
+    themeMusic = LoadSound("resources/theme.ogg");
+    victoryTheme = LoadSound("resources/victory.ogg");
     // Load texture for sprites
     spritesTexture = LoadTexture(SPRITES_PNG);        // Texture loading
 
@@ -117,7 +125,7 @@ int main(void)
     {
         case LOGO: UnloadLogoScreen(); break;
         case TITLE: UnloadTitleScreen(); break;
-        case OPTIONS: UnloadOptionsScreen(); break;
+        case CREDITS: UnloadCreditsScreen(); break;
         case GAMEPLAY: UnloadGameplayScreen(); break;
         case ENDING: UnloadEndingScreen(); break;
         default: break;
@@ -128,6 +136,10 @@ int main(void)
     UnloadFont(font);
     UnloadMusicStream(music);
     UnloadSound(fxCoin);
+    UnloadSound(fxHit);
+    UnloadSound(fxSelect);
+    UnloadSound(themeMusic);
+    UnloadSound(victoryTheme);
 
     CloseAudioDevice();     // Close audio context
 
@@ -148,7 +160,7 @@ static void ChangeToScreen(int screen)
     {
         case LOGO: UnloadLogoScreen(); break;
         case TITLE: UnloadTitleScreen(); break;
-        case OPTIONS: UnloadOptionsScreen(); break;
+        case CREDITS: UnloadCreditsScreen(); break;
         case GAMEPLAY: UnloadGameplayScreen(); break;
         case ENDING: UnloadEndingScreen(); break;
         default: break;
@@ -159,7 +171,7 @@ static void ChangeToScreen(int screen)
     {
         case LOGO: InitLogoScreen(); break;
         case TITLE: InitTitleScreen(); break;
-        case OPTIONS: InitOptionsScreen(); break;
+        case CREDITS: InitCreditsScreen(); break;
         case GAMEPLAY: InitGameplayScreen(); break;
         case ENDING: InitEndingScreen(); break;
         default: break;
@@ -196,7 +208,7 @@ static void UpdateTransition(void)
             {
                 case LOGO: UnloadLogoScreen(); break;
                 case TITLE: UnloadTitleScreen(); break;
-                case OPTIONS: UnloadOptionsScreen(); break;
+                case CREDITS: UnloadCreditsScreen(); break;
                 case GAMEPLAY: UnloadGameplayScreen(); break;
                 case ENDING: UnloadEndingScreen(); break;
                 default: break;
@@ -207,7 +219,7 @@ static void UpdateTransition(void)
             {
                 case LOGO: InitLogoScreen(); break;
                 case TITLE: InitTitleScreen(); break;
-                case OPTIONS: InitOptionsScreen(); break;
+                case CREDITS: InitCreditsScreen(); break;
                 case GAMEPLAY: InitGameplayScreen(); break;
                 case ENDING: InitEndingScreen(); break;
                 default: break;
@@ -262,22 +274,22 @@ static void UpdateDrawFrame(void)
             {
                 UpdateTitleScreen();
 
-                if (FinishTitleScreen() == 1) TransitionToScreen(OPTIONS);
-                else if (FinishTitleScreen() == 2) TransitionToScreen(GAMEPLAY);
+                if (FinishTitleScreen() == 1) TransitionToScreen(GAMEPLAY);
+                else if (FinishTitleScreen() == 2) TransitionToScreen(CREDITS);
 
             } break;
-            case OPTIONS:
+            case CREDITS:
             {
-                UpdateOptionsScreen();
+                UpdateCreditsScreen();
 
-                if (FinishOptionsScreen()) TransitionToScreen(TITLE);
+                if (FinishCreditsScreen()) TransitionToScreen(TITLE);
 
             } break;
             case GAMEPLAY:
             {
                 UpdateGameplayScreen();
 
-                if (FinishGameplayScreen() == 1) TransitionToScreen(ENDING);
+                if (FinishGameplayScreen() == 1) TransitionToScreen(TITLE);
                 //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
 
             } break;
@@ -304,7 +316,7 @@ static void UpdateDrawFrame(void)
         {
             case LOGO: DrawLogoScreen(); break;
             case TITLE: DrawTitleScreen(); break;
-            case OPTIONS: DrawOptionsScreen(); break;
+            case CREDITS: DrawCreditsScreen(); break;
             case GAMEPLAY: DrawGameplayScreen(); break;
             case ENDING: DrawEndingScreen(); break;
             default: break;

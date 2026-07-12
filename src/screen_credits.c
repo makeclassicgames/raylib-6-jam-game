@@ -25,45 +25,64 @@
 
 #include "raylib.h"
 #include "screens.h"
+#include "input.h"
+#include "ui.h"
 
 //----------------------------------------------------------------------------------
 // Module Variables Definition (local)
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
+static Button backButton;
+
+void onBackButtonClick(void);
 
 //----------------------------------------------------------------------------------
-// Options Screen Functions Definition
+// Credits Screen Functions Definition
 //----------------------------------------------------------------------------------
 
-// Options Screen Initialization logic
-void InitOptionsScreen(void)
+// Credits Screen Initialization logic
+void InitCreditsScreen(void)
 {
-    // TODO: Initialize OPTIONS screen variables here!
+    // TODO: Initialize CREDITS screen variables here!
     framesCounter = 0;
     finishScreen = 0;
+    InitButton(&backButton, "BACK", (Vector2){ 300, 360 }, onBackButtonClick);
 }
 
-// Options Screen Update logic
-void UpdateOptionsScreen(void)
+// Credits Screen Update logic
+void UpdateCreditsScreen(void)
 {
-    // TODO: Update OPTIONS screen variables here!
+    HandleInput(); // Handle input for the credits screen
+    UpdateButton(&backButton, GetMousePosition(), GetLastInputAction() == CONFIRM);
+    
 }
 
-// Options Screen Draw logic
-void DrawOptionsScreen(void)
+// Credits Screen Draw logic
+void DrawCreditsScreen(void)
 {
-    // TODO: Draw OPTIONS screen here!
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), PURPLE);
+    DrawText("CREDITS", GetScreenWidth() / 2 - MeasureText("CREDITS", 40) / 2, 100, 40, WHITE);
+    DrawText("Game developed by: Zerasul (Make Classic Games) and Emiliollbb", GetScreenWidth() / 2 - MeasureText("Game developed by: Zerasul (Make Classic Games) and Emiliollbb", 20) / 2, 200, 20, WHITE);
+    DrawText("Graphics by: Emiliollbb", GetScreenWidth() / 2 - MeasureText("Graphics by: Emiliollbb", 20) / 2, 250, 20, WHITE);
+    DrawText("Music by: Emiliollbb and Reset1001", GetScreenWidth() / 2 - MeasureText("Music by: Emiliollbb and Reset1001", 20) / 2, 300, 20, WHITE);
+    DrawButton(&backButton);
 }
 
-// Options Screen Unload logic
-void UnloadOptionsScreen(void)
+// Credits Screen Unload logic
+void UnloadCreditsScreen(void)
 {
-    // TODO: Unload OPTIONS screen variables here!
+    // TODO: Unload CREDITS screen variables here!
 }
 
-// Options Screen should finish?
-int FinishOptionsScreen(void)
+// Credits Screen should finish?
+int FinishCreditsScreen(void)
 {
     return finishScreen;
+}
+
+void onBackButtonClick(void)
+{
+    PlaySound(fxSelect);
+    finishScreen = 1;
 }
